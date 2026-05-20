@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Login — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="auth-logo">
+        <i class="fa-solid fa-warehouse"></i> NyondoStock
+    </div>
+    <p class="auth-subtitle">NYONDO General Hardware LTD</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">
+            <i class="fa-solid fa-right-to-bracket me-2"></i> Login
+        </button>
+    </form>
+</div>
+{% endblock %}

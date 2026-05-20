@@ -1,0 +1,274 @@
+/* ── Variables ─────────────────────────────── */
+:root {
+    --sidebar-width: 240px;
+    --sidebar-bg: #1a1f2e;
+    --sidebar-text: #c8cdd8;
+    --sidebar-active: #f59e0b;
+    --topbar-height: 56px;
+    --primary: #f59e0b;
+    --primary-dark: #d97706;
+    --body-bg: #f4f6fb;
+}
+
+body {
+    background: var(--body-bg);
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.92rem;
+}
+
+/* ── Layout ────────────────────────────────── */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ── Sidebar ───────────────────────────────── */
+#sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    overflow-x: hidden;
+}
+
+#sidebar.collapsed { width: 60px; }
+#sidebar.collapsed .sidebar-header span,
+#sidebar.collapsed .menu-label,
+#sidebar.collapsed li a span,
+#sidebar.collapsed .sidebar-footer span,
+#sidebar.collapsed .sidebar-footer .btn { display: none; }
+
+.sidebar-header {
+    padding: 1.2rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 1px solid #2d3447;
+    white-space: nowrap;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 1rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu li a:hover {
+    background: #252b3b;
+    color: #fff;
+}
+
+.sidebar-menu li a.active {
+    background: #252b3b;
+    color: var(--primary);
+    border-left-color: var(--primary);
+}
+
+.sidebar-menu li a i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.menu-label {
+    padding: 0.75rem 1rem 0.25rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #5a6280;
+    white-space: nowrap;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #2d3447;
+    color: var(--sidebar-text);
+    font-size: 0.82rem;
+}
+
+/* ── Main Content ──────────────────────────── */
+#content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.25s ease;
+}
+
+#content.expanded { margin-left: 60px; }
+
+/* ── Topbar ────────────────────────────────── */
+.topbar {
+    height: var(--topbar-height);
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+
+.badge-role {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* ── Page Content ──────────────────────────── */
+.page-content { padding: 1.5rem; }
+
+/* ── Cards ─────────────────────────────────── */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+/* ── Stat Cards ─────────────────────────────── */
+.stat-card {
+    border-radius: 12px;
+    padding: 1.25rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-card .stat-icon {
+    font-size: 2rem;
+    opacity: 0.85;
+}
+
+.stat-card .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-card .stat-label {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin-top: 0.2rem;
+}
+
+/* ── Tables ─────────────────────────────────── */
+.table thead th {
+    background: #f8f9fb;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.table tbody tr:hover { background: #fafbff; }
+
+/* ── Buttons ────────────────────────────────── */
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #1a1f2e;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #1a1f2e;
+}
+
+/* ── Forms ──────────────────────────────────── */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(245,158,11,0.2);
+}
+
+.form-label { font-weight: 500; font-size: 0.88rem; }
+
+/* ── Auth Page ──────────────────────────────── */
+.auth-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1f2e 0%, #2d3447 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.auth-logo {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.88rem;
+    margin-bottom: 2rem;
+}
+
+/* ── Badges ─────────────────────────────────── */
+.stock-low { color: #dc2626; font-weight: 600; }
+.stock-ok  { color: #16a34a; font-weight: 600; }
+
+/* ── Receipt ────────────────────────────────── */
+.receipt-card {
+    max-width: 520px;
+    margin: 0 auto;
+    border: 2px dashed #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.receipt-header { text-align: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 1rem; }
+.receipt-footer { text-align: center; border-top: 1px dashed #e5e7eb; padding-top: 1rem; margin-top: 1rem; }

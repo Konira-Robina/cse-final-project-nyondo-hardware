@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — NyondoStock{% endblock %}
+
+{% block content %}
+<h4 class="mb-4 fw-bold">
+    <i class="fa-solid fa-gauge me-2 text-warning"></i> Dashboard
+</h4>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#f59e0b,#d97706);">
+            <i class="fa-solid fa-boxes-stacked stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ total_products }}</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#ef4444,#dc2626);">
+            <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ low_stock }}</div>
+                <div class="stat-label">Low Stock Items</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#10b981,#059669);">
+            <i class="fa-solid fa-receipt stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ todays_sales }}</div>
+                <div class="stat-label">Today's Sales</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#6366f1,#4f46e5);">
+            <i class="fa-solid fa-file-invoice-dollar stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ pending_credits }}</div>
+                <div class="stat-label">Pending Credits</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-bolt me-2 text-warning"></i> Quick Actions
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a href="{% url 'cart' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-cart-plus me-2"></i> New Sale
+                </a>
+                <a href="{% url 'delivery_create' %}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-dolly me-2"></i> Record Delivery
+                </a>
+                <a href="{% url 'customer_register' %}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-user-plus me-2"></i> Register Deposit Customer
+                </a>
+                {% if request.user.profile.role == 'admin' %}
+                <a href="{% url 'register_user' %}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-user-gear me-2"></i> Add Staff Account
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-circle-info me-2 text-warning"></i> System Info
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Logged in as</span>
+                        <strong>{{ request.user.get_full_name }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Role</span>
+                        <strong>{{ request.user.profile.get_role_display }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Pending deposits</span>
+                        <strong>{{ pending_deposits }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
