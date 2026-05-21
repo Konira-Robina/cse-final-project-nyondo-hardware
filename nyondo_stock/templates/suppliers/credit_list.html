@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Credit Accounts — NyondoStock{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">
+    <i class="fa-solid fa-file-invoice-dollar me-2 text-warning"></i> Supplier Credit Accounts
+</h4>
+
+<div class="alert alert-info d-flex align-items-center mb-4">
+    <i class="fa-solid fa-circle-info me-2"></i>
+    Showing <strong class="mx-1">{{ credits.count }}</strong> pending credit(s).
+    <strong class="mx-1">{{ cleared }}</strong> account(s) fully cleared.
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Supplier</th>
+                    <th>Delivery Date</th>
+                    <th>Total (UGX)</th>
+                    <th>Paid (UGX)</th>
+                    <th>Balance (UGX)</th>
+                    <th>Due Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for credit in credits %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ credit.delivery.supplier.name }}</td>
+                    <td>{{ credit.delivery.delivery_date|date:"d M Y" }}</td>
+                    <td>{{ credit.total_amount|floatformat:0 }}</td>
+                    <td class="text-success">{{ credit.amount_paid|floatformat:0 }}</td>
+                    <td class="text-danger fw-bold">{{ credit.balance_due|floatformat:0 }}</td>
+                    <td>{{ credit.due_date|date:"d M Y"|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'make_payment' credit.pk %}"
+                           class="btn btn-sm btn-warning text-dark">
+                            <i class="fa-solid fa-money-bill me-1"></i> Pay
+                        </a>
+                        <a href="{% url 'delivery_detail' credit.delivery.pk %}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="fa-solid fa-circle-check fa-2x text-success mb-2 d-block"></i>
+                        No pending credit accounts.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Notifications — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-bell me-2 text-warning"></i>
+        Notifications
+        {% if unread_count > 0 %}
+        <span class="badge bg-danger ms-2">{{ unread_count }} unread</span>
+        {% endif %}
+    </h4>
+    <div class="d-flex gap-2">
+        {% if unread_count > 0 %}
+        <form method="post" action="{% url 'mark_all_read' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-check-double me-1"></i> Mark All Read
+            </button>
+        </form>
+        {% endif %}
+        <form method="post" action="{% url 'clear_read_notifications' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-trash me-1"></i> Clear Read
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if notifications %}
+<div class="d-flex flex-column gap-2">
+    {% for notif in notifications %}
+    <div class="card notif-card-{{ notif.level }}
+                {% if not notif.is_read %}notif-card-unread{% endif %}">
+        <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-start gap-3 flex-grow-1">
+
+                    <!-- Icon -->
+                    <div class="notif-icon notif-icon-{{ notif.level }}">
+                        <i class="fa-solid
+                            {% if notif.level == 'danger' %}fa-circle-exclamation
+                            {% elif notif.level == 'warning' %}fa-triangle-exclamation
+                            {% elif notif.level == 'success' %}fa-circle-check
+                            {% else %}fa-circle-info{% endif %}"></i>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="fw-semibold">{{ notif.title }}</span>
+                            {% if not notif.is_read %}
+                            <span class="badge bg-warning text-dark"
+                                  style="font-size:0.65rem;">New</span>
+                            {% endif %}
+                            <span class="badge
+                                {% if notif.level == 'danger' %}bg-danger
+                                {% elif notif.level == 'warning' %}bg-warning text-dark
+                                {% elif notif.level == 'success' %}bg-success
+                                {% else %}bg-info{% endif %}"
+                                  style="font-size:0.65rem;">
+                                {{ notif.get_category_display }}
+                            </span>
+                        </div>
+                        <p class="mb-1 text-muted small">{{ notif.message }}</p>
+                        <small class="text-muted">
+                            <i class="fa-regular fa-clock me-1"></i>
+                            {{ notif.created_at|timesince }} ago
+                            · {{ notif.created_at|date:"d M Y, H:i" }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-1 ms-3 flex-shrink-0">
+                    {% if not notif.is_read %}
+                    <a href="{% url 'notification_read' notif.pk %}"
+                       class="btn btn-sm btn-outline-primary"
+                       title="Mark as read">
+                        <i class="fa-solid fa-check"></i>
+                    </a>
+                    {% endif %}
+                    {% if notif.link %}
+                    <a href="{{ notif.link }}"
+                       class="btn btn-sm btn-outline-secondary"
+                       title="Go to">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                    <form method="post"
+                          action="{% url 'notification_delete' notif.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger"
+                                title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5 text-muted">
+        <i class="fa-solid fa-bell-slash fa-3x mb-3 d-block"></i>
+        <h5>No notifications</h5>
+        <p class="mb-0 small">You are all caught up!</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

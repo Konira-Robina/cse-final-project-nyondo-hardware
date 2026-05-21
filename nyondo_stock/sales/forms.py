@@ -1,7 +1,7 @@
 from django import forms
 from .models import Cart, CartItem
 from stock.models import Product
-from nyondo_stock.validators import validate_ugandan_phone
+from validators import validate_ugandan_phone
 
 
 class CartCustomerForm(forms.ModelForm):

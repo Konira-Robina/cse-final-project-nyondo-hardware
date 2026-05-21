@@ -1,18 +1,14 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import (
-    Supplier, SupplierDelivery, SupplierDeliveryItem,
-    SupplierCreditAccount, SupplierPayment
-)
-from .forms import (
-    SupplierForm, SupplierDeliveryForm,
-    SupplierDeliveryItemForm, SupplierPaymentForm
-)
+from .models import (Supplier, SupplierDelivery, SupplierDeliveryItem,SupplierCreditAccount, SupplierPayment)
+from .forms import (SupplierForm, SupplierDeliveryForm, SupplierDeliveryItemForm, SupplierPaymentForm)
+ 
 from stock.views import role_required
+from notifications.utils import (notify_new_delivery, notify_credit_payment)
 
-
-# ─── Supplier Views ────────────────────────────────────────────
+# Supplier Views
 
 @role_required(['store_manager', 'admin'])
 def supplier_list(request):
@@ -39,7 +35,7 @@ def supplier_detail(request, pk):
     })
 
 
-# ─── Delivery Views ────────────────────────────────────────────
+# Delivery Views
 
 @role_required(['store_manager', 'admin'])
 def delivery_create(request):
@@ -74,10 +70,8 @@ def delivery_add_item(request, pk):
                 if delivery.is_credit:
                     SupplierCreditAccount.objects.get_or_create(
                         delivery=delivery,
-                        defaults={
-                            'total_amount': delivery.total_amount,
-                        }
-                    )
+                        defaults={'total_amount': delivery.total_amount,})
+                    notify_new_delivery(delivery)
                 messages.success(request, "Delivery completed and stock updated.")
                 return redirect('delivery_detail', pk=delivery.pk)
 
@@ -139,6 +133,7 @@ def make_payment(request, pk):
                 payment.credit_account = credit
                 payment.received_by = request.user.get_full_name()
                 payment.save()
+                notify_credit_payment(payment)
                 messages.success(request, f"Payment of UGX {amount:,.0f} recorded.")
                 return redirect('credit_list')
 
@@ -146,3 +141,59 @@ def make_payment(request, pk):
         'credit': credit,
         'form': form,
     })
+
+@role_required(['store_manager', 'admin'])
+def supplier_edit(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    form = SupplierForm(request.POST or None, instance=supplier)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Supplier updated.")
+            return redirect('supplier_detail', pk=supplier.pk)
+    return render(request, 'suppliers/supplier_form.html', {
+        'form': form,
+        'title': f'Edit Supplier — {supplier.name}',
+        'supplier': supplier,
+    })
+
+
+@role_required(['admin'])
+def supplier_delete(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    if request.method == 'POST':
+        supplier.delete()
+        messages.success(request, "Supplier deleted.")
+        return redirect('supplier_list')
+    return render(request, 'suppliers/supplier_confirm_delete.html', {
+        'supplier': supplier,
+    })
+
+
+@role_required(['store_manager', 'admin'])
+def delivery_edit(request, pk):
+    delivery = get_object_or_404(SupplierDelivery, pk=pk)
+    form = SupplierDeliveryForm(request.POST or None, instance=delivery)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Delivery updated.")
+            return redirect('delivery_detail', pk=delivery.pk)
+    return render(request, 'suppliers/delivery_form.html', {
+        'form': form,
+        'title': f'Edit Delivery — {delivery.supplier.name}',
+        'delivery': delivery,
+    })
+
+
+@role_required(['admin'])
+def delivery_delete(request, pk):
+    delivery = get_object_or_404(SupplierDelivery, pk=pk)
+    if request.method == 'POST':
+        delivery.delete()
+        messages.success(request, "Delivery deleted.")
+        return redirect('delivery_list')
+    return render(request, 'suppliers/delivery_confirm_delete.html', {
+        'delivery': delivery,
+    })
+

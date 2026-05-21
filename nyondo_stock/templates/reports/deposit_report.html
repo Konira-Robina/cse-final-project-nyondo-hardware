@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% block title %}Deposit Report — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-piggy-bank me-2 text-warning"></i>
+        Deposit Scheme Report
+    </h4>
+    <button onclick="window.print()" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-print me-1"></i> Print
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 no-print">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from"
+                       value="{{ date_from|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to"
+                       value="{{ date_to|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter me-1"></i> Apply
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'deposit_report' %}"
+                   class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <i class="fa-solid fa-users stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ total_customers }}</div>
+                <div class="stat-label">Active Customers</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#10b981,#059669);">
+            <i class="fa-solid fa-piggy-bank stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.1rem;">
+                    UGX {{ period_deposits_amount|floatformat:0 }}
+                </div>
+                <div class="stat-label">Period Deposits</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+            <i class="fa-solid fa-box-open stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ pending_pickups|length }}</div>
+                <div class="stat-label">Ready for Pickup</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+            <i class="fa-solid fa-check-circle stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ pickups_count }}</div>
+                <div class="stat-label">Pickups This Period</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ready for Pickup — most important section -->
+{% if pending_pickups %}
+<div class="card mb-4 border-warning">
+    <div class="card-header bg-warning text-dark">
+        <i class="fa-solid fa-box-open me-2"></i>
+        Customers Ready for Pickup
+        <span class="badge bg-dark ms-2">{{ pending_pickups|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>NIN</th>
+                    <th>Product</th>
+                    <th>Total Deposited</th>
+                    <th>Product Price</th>
+                    <th class="no-print">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pending_pickups %}
+                <tr>
+                    <td><strong>{{ item.customer.full_name }}</strong></td>
+                    <td><code>{{ item.customer.nin }}</code></td>
+                    <td>{{ item.product.name }}</td>
+                    <td class="text-success fw-bold">
+                        UGX {{ item.total_deposited|floatformat:0 }}
+                    </td>
+                    <td>UGX {{ item.product.retail_price|floatformat:0 }}</td>
+                    <td class="no-print">
+                        <a href="{% url 'goods_pickup' item.deposit.pk %}"
+                           class="btn btn-sm btn-warning text-dark">
+                            <i class="fa-solid fa-box-open me-1"></i> Process
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Deposits by Product -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-chart-bar me-2"></i> Deposits by Product
+        <span class="text-muted small ms-2">
+            {{ date_from|date:"d M Y" }} — {{ date_to|date:"d M Y" }}
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Deposits</th>
+                    <th>Total Amount (UGX)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in by_product %}
+                <tr>
+                    <td>{{ row.product__name }}</td>
+                    <td>{{ row.count }}</td>
+                    <td><strong>{{ row.total_amount|floatformat:0 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-3">
+                        No deposits in this period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Deposit Records -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-list me-2"></i> Deposit Records
+        <span class="badge bg-secondary ms-2">{{ deposits|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Receipt #</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Amount (UGX)</th>
+                    <th>Date</th>
+                    <th>Pickup Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deposit in deposits %}
+                <tr>
+                    <td><code>{{ deposit.receipt_number }}</code></td>
+                    <td>{{ deposit.customer.full_name }}</td>
+                    <td>{{ deposit.product.name }}</td>
+                    <td><strong>{{ deposit.amount_paid|floatformat:0 }}</strong></td>
+                    <td>{{ deposit.payment_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if deposit.pickups.exists %}
+                        <span class="badge bg-success">Picked Up</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No deposits in selected period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if deposits %}
+            <tfoot>
+                <tr class="fw-bold table-warning">
+                    <td colspan="3">PERIOD TOTAL</td>
+                    <td>UGX {{ period_deposits_amount|floatformat:0 }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+
+<!-- Completed Pickups -->
+<div class="card">
+    <div class="card-header">
+        <i class="fa-solid fa-check-circle me-2 text-success"></i>
+        Completed Pickups
+        <span class="badge bg-secondary ms-2">{{ pickups|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty Picked</th>
+                    <th>Amount Used</th>
+                    <th>Served By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pickup in pickups %}
+                <tr>
+                    <td>{{ pickup.deposit.customer.full_name }}</td>
+                    <td>{{ pickup.deposit.product.name }}</td>
+                    <td>{{ pickup.quantity_picked }}</td>
+                    <td>UGX {{ pickup.amount_used|floatformat:0 }}</td>
+                    <td>{{ pickup.served_by }}</td>
+                    <td>{{ pickup.pickup_date|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No pickups in selected period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

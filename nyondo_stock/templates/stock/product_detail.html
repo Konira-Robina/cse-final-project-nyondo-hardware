@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-box me-2 text-warning"></i> {{ product.name }}
+    </h4>
+    <div class="d-flex gap-2">
+        {% if request.user.profile.role in 'store_manager,admin' %}
+        <a href="{% url 'product_edit' product.pk %}" class="btn btn-outline-primary">
+            <i class="fa-solid fa-pen me-1"></i> Edit
+        </a>
+        {% endif %}
+        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-circle-info me-2"></i> Product Details
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width:40%">Category</td>
+                        <td><strong>{{ product.category.name|default:"—" }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Unit</td>
+                        <td><strong>{{ product.get_unit_display }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Description</td>
+                        <td>{{ product.description|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Deposit Eligible</td>
+                        <td>
+                            {% if product.is_deposit_eligible %}
+                            <span class="badge bg-success">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Date Added</td>
+                        <td>{{ product.date_added|date:"d M Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-tag me-2"></i> Pricing (UGX)
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td class="text-muted">Unit Cost</td>
+                        <td><strong>{{ product.unit_cost|floatformat:0 }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Wholesale Price</td>
+                        <td><strong class="text-primary">{{ product.wholesale_price|floatformat:0 }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Retailer Price</td>
+                        <td><strong class="text-info">{{ product.retailer_price|floatformat:0 }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Retail Price</td>
+                        <td><strong class="text-success">{{ product.retail_price|floatformat:0 }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-warehouse me-2"></i> Stock Level
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center">
+                        <div class="display-4 fw-bold
+                            {% if product.is_low_stock %}text-danger{% else %}text-success{% endif %}">
+                            {{ product.quantity_in_stock }}
+                        </div>
+                        <div class="text-muted">{{ product.get_unit_display }}(s) in stock</div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="mb-2">
+                            <small class="text-muted">Low stock threshold: {{ product.low_stock_threshold }}</small>
+                        </div>
+                        {% if product.is_low_stock %}
+                        <div class="alert alert-danger py-2 mb-0">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                            Stock is below threshold. Consider restocking.
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success py-2 mb-0">
+                            <i class="fa-solid fa-circle-check me-2"></i>
+                            Stock level is healthy.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

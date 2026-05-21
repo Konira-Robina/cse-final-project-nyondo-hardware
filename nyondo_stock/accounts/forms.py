@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import UserProfile
-from nyondo_stock.validators import validate_ugandan_phone
+from validators import validate_ugandan_phone
 
 
 class LoginForm(AuthenticationForm):

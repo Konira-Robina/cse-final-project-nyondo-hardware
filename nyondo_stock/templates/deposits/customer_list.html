@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Deposit Customers — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-users me-2 text-warning"></i> Deposit Scheme Customers
+    </h4>
+    <a href="{% url 'customer_register' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus me-2"></i> Register Customer
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>NIN</th>
+                    <th>Phone</th>
+                    <th>Employer</th>
+                    <th>Registered</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ customer.full_name }}</td>
+                    <td>
+                        <code>{{ customer.nin }}</code>
+                    </td>
+                    <td>{{ customer.phone }}</td>
+                    <td>{{ customer.employer|default:"—" }}</td>
+                    <td>{{ customer.registration_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if customer.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'customer_detail' customer.pk %}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="fa-solid fa-users fa-2x mb-2 d-block"></i>
+                        No customers registered yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Products — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-boxes-stacked me-2 text-warning"></i> Products
+    </h4>
+    {% if request.user.profile.role in 'store_manager,admin' %}
+    <a href="{% url 'product_add' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus me-2"></i> Add Product
+    </a>
+    {% endif %}
+</div>
+
+{% if low_stock_count > 0 %}
+<div class="alert alert-danger d-flex align-items-center mb-4">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <strong>{{ low_stock_count }} product(s)</strong>&nbsp;are running low on stock.
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Unit</th>
+                        <th>Cost (UGX)</th>
+                        <th>Wholesale</th>
+                        <th>Retailer</th>
+                        <th>Retail</th>
+                        <th>Stock</th>
+                        <th>Deposit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'product_detail' product.pk %}" class="text-decoration-none fw-semibold">
+                                {{ product.name }}
+                            </a>
+                        </td>
+                        <td>{{ product.category.name|default:"—" }}</td>
+                        <td>{{ product.get_unit_display }}</td>
+                        <td>{{ product.unit_cost|floatformat:0 }}</td>
+                        <td>{{ product.wholesale_price|floatformat:0 }}</td>
+                        <td>{{ product.retailer_price|floatformat:0 }}</td>
+                        <td>{{ product.retail_price|floatformat:0 }}</td>
+                        <td>
+                            {% if product.is_low_stock %}
+                            <span class="stock-low">
+                                <i class="fa-solid fa-arrow-down me-1"></i>{{ product.quantity_in_stock }}
+                            </span>
+                            {% else %}
+                            <span class="stock-ok">{{ product.quantity_in_stock }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.is_deposit_eligible %}
+                            <i class="fa-solid fa-check text-success"></i>
+                            {% else %}
+                            <i class="fa-solid fa-minus text-muted"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'product_detail' product.pk %}"
+                                   class="btn btn-sm btn-outline-secondary"
+                                   title="View">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                {% if request.user.profile.role in 'store_manager,admin' %}
+                                <a href="{% url 'product_edit' product.pk %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Edit">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="{% url 'product_delete' product.pk %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-5">
+                            <i class="fa-solid fa-box-open fa-2x mb-2 d-block"></i>
+                            No products registered yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

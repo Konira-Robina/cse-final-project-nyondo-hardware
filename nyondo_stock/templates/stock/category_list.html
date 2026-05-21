@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Categories — NyondoStock{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">
+    <i class="fa-solid fa-tags me-2 text-warning"></i> Categories
+</h4>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-plus me-2"></i> Add Category
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Category Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa-solid fa-plus me-2"></i> Add
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-list me-2"></i> All Categories
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Products</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ cat.name }}</td>
+                            <td>{{ cat.product_set.count }}</td>
+                            <td>
+                                <form method="post"
+                                      action="{% url 'category_delete' cat.pk %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            {% if cat.product_set.count > 0 %}disabled title="Has products"{% endif %}>
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td>
+    <div class="d-flex gap-1">
+        <a href="{% url 'category_edit' cat.pk %}"
+           class="btn btn-sm btn-outline-primary"
+           title="Edit">
+            <i class="fa-solid fa-pen"></i>
+        </a>
+        <form method="post" action="{% url 'category_delete' cat.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger"
+                    title="Delete"
+                    {% if cat.product_set.count > 0 %}
+                    disabled title="Cannot delete — has products"
+                    {% endif %}>
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </form>
+    </div>
+</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

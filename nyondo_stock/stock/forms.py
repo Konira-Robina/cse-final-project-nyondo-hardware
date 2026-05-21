@@ -1,6 +1,6 @@
 from django import forms
 from .models import Category, Product
-from nyondo_stock.validators import validate_selling_price
+from validators import validate_selling_price
 
 
 class CategoryForm(forms.ModelForm):

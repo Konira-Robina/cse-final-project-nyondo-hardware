@@ -5,6 +5,7 @@ from django.contrib import messages
 from .models import DepositCustomer, DepositRecord, GoodsPickup
 from .forms import DepositCustomerForm, DepositRecordForm
 from stock.views import role_required
+from notifications.utils import notify_new_deposit, notify_deposit_ready
 
 
 @role_required(['admin', 'sales_attendant'])
@@ -48,6 +49,8 @@ def deposit_record(request, customer_pk):
             deposit = form.save(commit=False)
             deposit.customer = customer
             deposit.save()
+            notify_new_deposit(deposit)
+            notify_deposit_ready(deposit)
             messages.success(
                 request,
                 f"Deposit of UGX {deposit.amount_paid:,.0f} recorded. "
@@ -94,3 +97,31 @@ def goods_pickup(request, deposit_pk):
             return redirect('customer_detail', pk=deposit.customer.pk)
 
     return render(request, 'deposits/goods_pickup.html', {'deposit': deposit})
+
+@role_required(['admin'])
+def customer_edit(request, pk):
+    customer = get_object_or_404(DepositCustomer, pk=pk)
+    form = DepositCustomerForm(request.POST or None, instance=customer)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Customer details updated.")
+            return redirect('customer_detail', pk=customer.pk)
+    return render(request, 'deposits/customer_form.html', {
+        'form': form,
+        'title': f'Edit — {customer.full_name}',
+    })
+
+
+@role_required(['admin'])
+def customer_deactivate(request, pk):
+    customer = get_object_or_404(DepositCustomer, pk=pk)
+    if request.method == 'POST':
+        customer.is_active = not customer.is_active
+        customer.save()
+        status = "activated" if customer.is_active else "deactivated"
+        messages.success(request, f"Customer {status}.")
+        return redirect('customer_detail', pk=customer.pk)
+    return render(request, 'deposits/customer_confirm_deactivate.html', {
+        'customer': customer,
+    })

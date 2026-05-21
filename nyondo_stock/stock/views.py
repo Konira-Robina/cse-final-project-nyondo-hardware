@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Category, Product
 from .forms import CategoryForm, ProductForm
+from django.db import models
 
 
 def role_required(roles):
@@ -103,6 +104,19 @@ def product_delete(request, pk):
         return redirect('product_list')
     return render(request, 'stock/product_confirm_delete.html', {'product': product})
 
+@role_required(['store_manager', 'admin'])
+def category_edit(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    form = CategoryForm(request.POST or None, instance=category)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category updated.")
+            return redirect('category_list')
+    return render(request, 'stock/category_form.html', {
+        'form': form,
+        'title': f'Edit Category — {category.name}',
+    })
 
-# fix missing import
-from django.db import models
+
+

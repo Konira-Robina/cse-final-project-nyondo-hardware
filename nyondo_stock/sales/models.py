@@ -73,7 +73,7 @@ class SaleItem(models.Model):
     def __str__(self):
         return f"{self.quantity} × {self.product.name} @ {self.unit_price}"
     
-    class Cart(models.Model):
+class Cart(models.Model):
     attendant = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
     customer_name = models.CharField(max_length=200, blank=True)
     customer_phone = models.CharField(max_length=15, blank=True)

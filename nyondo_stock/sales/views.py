@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Cart, CartItem, Sale, SaleItem
 from .forms import CartCustomerForm, AddToCartForm, UpdateCartItemForm
 from stock.models import Product
+from notifications.utils import notify_new_sale, notify_low_stock
 
 
 def get_or_create_cart(user):
@@ -120,6 +121,8 @@ def checkout(request):
             # Reduce stock
             cart_item.product.quantity_in_stock -= cart_item.quantity
             cart_item.product.save()
+            if cart_item.product.is_low_stock():
+                notify_low_stock(cart_item.product)
 
         # Clear the cart
         cart.clear()

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Add Staff — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-user-plus me-2 text-warning"></i> Register Staff Account
+    </h4>
+    <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone <span class="text-danger">*</span></label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            {{ form.role }}
+                            {% if form.role.errors %}
+                            <div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12 border-top pt-3 mt-2">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fa-solid fa-user-plus me-2"></i> Register Staff
+                            </button>
+                            <a href="{% url 'user_list' %}" class="btn btn-outline-secondary ms-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

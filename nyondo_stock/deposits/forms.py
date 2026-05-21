@@ -1,6 +1,6 @@
 from django import forms
 from .models import DepositCustomer, DepositRecord
-from nyondo_stock.validators import validate_ugandan_phone, validate_nin
+from validators import validate_ugandan_phone, validate_nin
 
 
 class DepositCustomerForm(forms.ModelForm):

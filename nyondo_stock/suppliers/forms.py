@@ -1,6 +1,6 @@
 from django import forms
 from .models import Supplier, SupplierDelivery, SupplierDeliveryItem, SupplierPayment
-from nyondo_stock.validators import validate_ugandan_phone, validate_selling_price
+from validators import validate_ugandan_phone, validate_selling_price
 from stock.models import Product, Category
 
 

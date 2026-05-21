@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}
+    {% if customer.is_active %}Deactivate{% else %}Activate{% endif %}
+    {{ customer.full_name }}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card {% if customer.is_active %}border-warning{% else %}border-success{% endif %}">
+            <div class="card-header
+                {% if customer.is_active %}bg-warning text-dark{% else %}bg-success text-white{% endif %}">
+                <i class="fa-solid fa-user me-2"></i>
+                {% if customer.is_active %}Deactivate{% else %}Activate{% endif %} Customer
+            </div>
+            <div class="card-body text-center py-4">
+                <i class="fa-solid fa-user fa-3x
+                   {% if customer.is_active %}text-warning{% else %}text-success{% endif %} mb-3"></i>
+                <h5>
+                    {% if customer.is_active %}Deactivate{% else %}Activate{% endif %}
+                    <strong>{{ customer.full_name }}</strong>?
+                </h5>
+                <p class="text-muted">
+                    {% if customer.is_active %}
+                    The customer will no longer be able to make deposits.
+                    All existing deposit records will be preserved.
+                    {% else %}
+                    The customer will be able to make deposits again.
+                    {% endif %}
+                </p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="btn px-4
+                                {% if customer.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                            <i class="fa-solid fa-check me-2"></i> Confirm
+                        </button>
+                    </form>
+                    <a href="{% url 'customer_detail' customer.pk %}"
+                       class="btn btn-outline-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

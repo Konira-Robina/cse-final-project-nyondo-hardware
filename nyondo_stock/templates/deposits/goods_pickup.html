@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Goods Pickup — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">
+                <i class="fa-solid fa-box-open me-2 text-warning"></i> Goods Pickup
+            </h4>
+            <a href="{% url 'customer_detail' deposit.customer.pk %}"
+               class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa-solid fa-circle-info me-2"></i> Deposit Info
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Customer</span>
+                    <strong>{{ deposit.customer.full_name }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Product</span>
+                    <strong>{{ deposit.product.name }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Amount Deposited</span>
+                    <strong class="text-warning">UGX {{ deposit.amount_paid|floatformat:0 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Stock Available</span>
+                    <strong>{{ deposit.product.quantity_in_stock }} {{ deposit.product.get_unit_display }}(s)</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Receipt #</span>
+                    <code>{{ deposit.receipt_number }}</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-box-open me-2"></i> Record Pickup
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info small mb-3">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Quantity given is determined by the amount the customer deposited
+                    on the day of pickup.
+                </div>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Quantity to Release
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" name="quantity" min="1"
+                               max="{{ deposit.product.quantity_in_stock }}"
+                               class="form-control" placeholder="Enter quantity" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fa-solid fa-box-open me-2"></i> Confirm Pickup
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

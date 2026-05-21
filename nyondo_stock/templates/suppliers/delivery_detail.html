@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Delivery Detail — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-dolly me-2 text-warning"></i>
+        {{ delivery.supplier.name }} — {{ delivery.delivery_date|date:"d M Y" }}
+    </h4>
+    <div class="d-flex gap-2">
+        <a href="{% url 'delivery_edit' delivery.pk %}"
+           class="btn btn-outline-primary">
+            <i class="fa-solid fa-pen me-1"></i> Edit
+        </a>
+        {% if request.user.profile.role == 'admin' %}
+        <a href="{% url 'delivery_delete' delivery.pk %}"
+           class="btn btn-outline-danger">
+            <i class="fa-solid fa-trash me-1"></i> Delete
+        </a>
+        {% endif %}
+        <a href="{% url 'delivery_list' %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa-solid fa-circle-info me-2"></i> Delivery Info
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td class="text-muted">Supplier</td>
+                        <td><strong>{{ delivery.supplier.name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Date</td>
+                        <td>{{ delivery.delivery_date|date:"d M Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Payment</td>
+                        <td>
+                            {% if delivery.payment_type == 'credit' %}
+                            <span class="badge bg-warning text-dark">Credit</span>
+                            {% else %}
+                            <span class="badge bg-success">Cash</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Recorded By</td>
+                        <td>{{ delivery.recorded_by|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Total</td>
+                        <td><strong>UGX {{ delivery.total_amount|floatformat:0 }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        {% if credit %}
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="fa-solid fa-file-invoice-dollar me-2"></i> Credit Account
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Amount</span>
+                    <strong>UGX {{ credit.total_amount|floatformat:0 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Amount Paid</span>
+                    <strong class="text-success">UGX {{ credit.amount_paid|floatformat:0 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Balance Due</span>
+                    <strong class="text-danger">UGX {{ credit.balance_due|floatformat:0 }}</strong>
+                </div>
+                {% if not credit.is_cleared %}
+                <a href="{% url 'make_payment' credit.pk %}" class="btn btn-warning btn-sm w-100">
+                    <i class="fa-solid fa-money-bill me-1"></i> Make Payment
+                </a>
+                {% else %}
+                <div class="alert alert-success py-2 text-center mb-0">
+                    <i class="fa-solid fa-circle-check me-1"></i> Fully Cleared
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-list me-2"></i> Items Delivered
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Cost</th>
+                            <th>Wholesale</th>
+                            <th>Retailer</th>
+                            <th>Retail</th>
+                            <th>Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit_cost|floatformat:0 }}</td>
+                            <td>{{ item.wholesale_price|floatformat:0 }}</td>
+                            <td>{{ item.retailer_price|floatformat:0 }}</td>
+                            <td>{{ item.retail_price|floatformat:0 }}</td>
+                            <td><strong>{{ item.line_total|floatformat:0 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="6" class="text-end">Total</td>
+                            <td>UGX {{ delivery.total_amount|floatformat:0 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

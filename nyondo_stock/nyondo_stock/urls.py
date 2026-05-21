@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+admin.site.site_header = "NyondoStock Administration"
+admin.site.site_title = "NyondoStock Admin"
+admin.site.index_title = "Welcome to NyondoStock Admin Panel"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
@@ -24,5 +28,8 @@ urlpatterns = [
     path('suppliers/', include('suppliers.urls')),
     path('sales/', include('sales.urls')),
     path('deposits/', include('deposits.urls')),
-    path('', include('accounts.urls')),  # root goes to login/dashboard
+    path('', include('accounts.urls')),
+    path('notifications/', include('notifications.urls')),
+    path('reports/', include('reports.urls')),
 ]
+

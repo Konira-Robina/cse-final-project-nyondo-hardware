@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% block title %}Sales Report — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-chart-line me-2 text-warning"></i> Sales Report
+    </h4>
+    <button onclick="window.print()" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-print me-1"></i> Print
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 no-print">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from"
+                       value="{{ date_from|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to"
+                       value="{{ date_to|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Customer Type</label>
+                <select name="customer_type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for val, label in customer_type_choices %}
+                    <option value="{{ val }}"
+                        {% if customer_type == val %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Group By</label>
+                <select name="group_by" class="form-select">
+                    <option value="day"
+                        {% if group_by == 'day' %}selected{% endif %}>Day</option>
+                    <option value="week"
+                        {% if group_by == 'week' %}selected{% endif %}>Week</option>
+                    <option value="month"
+                        {% if group_by == 'month' %}selected{% endif %}>Month</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter me-1"></i> Apply
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'sales_report' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <i class="fa-solid fa-receipt stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ summary.total_sales|default:0 }}</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#10b981,#059669);">
+            <i class="fa-solid fa-coins stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.3rem;">
+                    UGX {{ summary.total_revenue|floatformat:0|default:0 }}
+                </div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+            <i class="fa-solid fa-truck stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.3rem;">
+                    UGX {{ summary.total_transport|floatformat:0|default:0 }}
+                </div>
+                <div class="stat-label">Transport Charges</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+            <i class="fa-solid fa-users stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ by_customer_type|length }}</div>
+                <div class="stat-label">Customer Types</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <!-- Sales by Customer Type -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-users me-2"></i> Sales by Customer Type
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Customer Type</th>
+                            <th>Sales</th>
+                            <th>Revenue (UGX)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in by_customer_type %}
+                        <tr>
+                            <td>
+                                {% if row.customer_type == 'wholesaler' %}
+                                <span class="badge bg-primary">Wholesaler</span>
+                                {% elif row.customer_type == 'retailer' %}
+                                <span class="badge bg-info">Retailer</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Individual</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ row.count }}</td>
+                            <td><strong>{{ row.revenue|floatformat:0 }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">
+                                No data for selected period.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales over time -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fa-solid fa-chart-bar me-2"></i>
+                Sales by {{ group_by|title }}
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Sales</th>
+                            <th>Revenue (UGX)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sales_over_time %}
+                        <tr>
+                            <td>{{ row.period|date:"d M Y" }}</td>
+                            <td>{{ row.count }}</td>
+                            <td><strong>{{ row.revenue|floatformat:0 }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">
+                                No sales in this period.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Products -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-trophy me-2 text-warning"></i> Top 10 Products by Revenue
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Unit</th>
+                    <th>Qty Sold</th>
+                    <th>Revenue (UGX)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in top_products %}
+                <tr>
+                    <td>
+                        {% if forloop.counter == 1 %}
+                        <i class="fa-solid fa-trophy text-warning"></i>
+                        {% elif forloop.counter == 2 %}
+                        <i class="fa-solid fa-trophy text-secondary"></i>
+                        {% elif forloop.counter == 3 %}
+                        <i class="fa-solid fa-trophy" style="color:#cd7f32;"></i>
+                        {% else %}
+                        {{ forloop.counter }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.product__name }}</td>
+                    <td>{{ item.product__unit }}</td>
+                    <td>{{ item.total_qty }}</td>
+                    <td><strong>{{ item.total_revenue|floatformat:0 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">
+                        No sales data.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Individual Sales -->
+<div class="card">
+    <div class="card-header">
+        <i class="fa-solid fa-list me-2"></i>
+        Individual Sales
+        <span class="badge bg-secondary ms-2">{{ sales_list.count }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Receipt #</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Subtotal</th>
+                        <th>Transport</th>
+                        <th>Grand Total</th>
+                        <th>Served By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'receipt' sale.pk %}"
+                               class="badge bg-warning text-dark text-decoration-none">
+                                {{ sale.receipt_number }}
+                            </a>
+                        </td>
+                        <td>{{ sale.sale_date|date:"d M Y, H:i" }}</td>
+                        <td>{{ sale.customer_name|default:"Walk-in" }}</td>
+                        <td>{{ sale.get_customer_type_display }}</td>
+                        <td>{{ sale.subtotal|floatformat:0 }}</td>
+                        <td>
+                            {% if sale.transport_status == 'free' %}
+                            <span class="text-success">Free</span>
+                            {% elif sale.transport_status == 'charged' %}
+                            30,000
+                            {% else %}—{% endif %}
+                        </td>
+                        <td><strong>{{ sale.grand_total|floatformat:0 }}</strong></td>
+                        <td>{{ sale.served_by.get_full_name }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            No sales in selected period.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if sales_list %}
+                <tfoot>
+                    <tr class="fw-bold table-warning">
+                        <td colspan="4">TOTALS</td>
+                        <td>{{ summary.total_subtotal|floatformat:0|default:0 }}</td>
+                        <td>{{ summary.total_transport|floatformat:0|default:0 }}</td>
+                        <td>{{ summary.total_revenue|floatformat:0|default:0 }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

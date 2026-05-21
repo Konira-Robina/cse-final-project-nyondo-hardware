@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Deliveries — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-dolly me-2 text-warning"></i> Deliveries
+    </h4>
+    <a href="{% url 'delivery_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus me-2"></i> New Delivery
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Supplier</th>
+                    <th>Date</th>
+                    <th>Payment</th>
+                    <th>Total (UGX)</th>
+                    <th>Credit Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delivery in deliveries %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ delivery.supplier.name }}</td>
+                    <td>{{ delivery.delivery_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if delivery.payment_type == 'credit' %}
+                        <span class="badge bg-warning text-dark">Credit</span>
+                        {% else %}
+                        <span class="badge bg-success">Cash</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ delivery.total_amount|floatformat:0 }}</td>
+                    <td>
+                        {% if delivery.is_credit %}
+                            {% if delivery.credit_account.is_cleared %}
+                            <span class="badge bg-success">Cleared</span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                Balance: {{ delivery.credit_account.balance_due|floatformat:0 }}
+                            </span>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'delivery_detail' delivery.pk %}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        No deliveries recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required       
+from django.contrib.auth import login, logout, authenticate 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import LoginForm, UserRegistrationForm
@@ -87,3 +88,50 @@ def user_list_view(request):
 
     profiles = UserProfile.objects.select_related('user').all()
     return render(request, 'accounts/user_list.html', {'profiles': profiles})
+
+@login_required
+def user_edit(request, pk):
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+
+    profile = get_object_or_404(UserProfile, pk=pk)
+    # Pre-populate role and phone from profile
+    initial = {'role': profile.role, 'phone': profile.phone}
+    form = UserRegistrationForm(request.POST or None,
+                                instance=profile.user,
+                                initial=initial)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            profile.role = form.cleaned_data['role']
+            profile.phone = form.cleaned_data['phone']
+            profile.save()
+            messages.success(request, "Staff account updated.")
+            return redirect('user_list')
+
+    return render(request, 'accounts/register.html', {
+        'form': form,
+        'title': f'Edit — {profile.user.get_full_name()}',
+    })
+
+
+@login_required
+def user_delete(request, pk):
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+
+    profile = get_object_or_404(UserProfile, pk=pk)
+    if profile.user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('user_list')
+
+    if request.method == 'POST':
+        profile.user.delete()
+        messages.success(request, "Staff account deleted.")
+        return redirect('user_list')
+
+    return render(request, 'accounts/user_confirm_delete.html', {
+        'profile': profile,
+    })

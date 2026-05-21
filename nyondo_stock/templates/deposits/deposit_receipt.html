@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Deposit Receipt — {{ deposit.receipt_number }}{% endblock %}
+
+{% block content %}
+<div class="receipt-card mt-3">
+    <div class="receipt-header">
+        <h5 class="fw-bold mb-0">
+            <i class="fa-solid fa-warehouse me-2 text-warning"></i>
+            NYONDO General Hardware LTD
+        </h5>
+        <small class="text-muted">Deposit Scheme — Temporary Receipt</small>
+        <div class="mt-2">
+            <span class="badge bg-secondary fs-6">
+                {{ deposit.receipt_number }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row my-3">
+        <div class="col-6">
+            <small class="text-muted">Customer</small>
+            <div class="fw-bold">{{ deposit.customer.full_name }}</div>
+        </div>
+        <div class="col-6">
+            <small class="text-muted">NIN</small>
+            <div><code>{{ deposit.customer.nin }}</code></div>
+        </div>
+        <div class="col-6 mt-2">
+            <small class="text-muted">Phone</small>
+            <div>{{ deposit.customer.phone }}</div>
+        </div>
+        <div class="col-6 mt-2">
+            <small class="text-muted">Date</small>
+            <div>{{ deposit.payment_date|date:"d M Y, H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="border-top border-bottom py-3 my-3">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Product</span>
+            <strong>{{ deposit.product.name }}</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="text-muted fw-bold">Amount Deposited</span>
+            <strong class="fs-5 text-warning">UGX {{ deposit.amount_paid|floatformat:0 }}</strong>
+        </div>
+    </div>
+
+    {% if deposit.notes %}
+    <p class="text-muted small">Notes: {{ deposit.notes }}</p>
+    {% endif %}
+
+    <div class="receipt-footer text-muted small">
+        <p class="mb-0">This is a temporary deposit receipt.</p>
+        <p class="mb-0">Goods will be issued based on amount paid on collection day.</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center gap-3 mt-3">
+    <a href="{% url 'customer_detail' deposit.customer.pk %}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-user me-1"></i> Back to Customer
+    </a>
+    <a href="{% url 'customer_list' %}" class="btn btn-primary">
+        <i class="fa-solid fa-users me-1"></i> All Customers
+    </a>
+</div>
+{% endblock %}

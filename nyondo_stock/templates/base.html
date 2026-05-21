@@ -4,20 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}NyondoStock{% endblock %}</title>
-
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     {% load static %}
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
 </head>
 <body>
 
 {% if request.user.is_authenticated %}
-<!-- ── Sidebar ─────────────────────────────────────── -->
+
 <div class="wrapper">
+
+    <!-- Sidebar -->
     <nav id="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-warehouse me-2"></i>
@@ -26,13 +24,12 @@
 
         <ul class="sidebar-menu">
             <li>
-                <a href="{% url 'dashboard' %}" 
+                <a href="{% url 'dashboard' %}"
                    class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fa-solid fa-gauge"></i> Dashboard
                 </a>
             </li>
 
-            <!-- Stock -->
             <li class="menu-label">Stock</li>
             <li>
                 <a href="{% url 'product_list' %}"
@@ -47,13 +44,12 @@
                 </a>
             </li>
 
-            <!-- Sales -->
             <li class="menu-label">Sales</li>
             <li>
                 <a href="{% url 'cart' %}"
                    class="{% if 'cart' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fa-solid fa-cart-shopping"></i> New Sale
-                    {% with request.user.cart as cart %}
+                    {% with cart=request.user.cart %}
                         {% if cart and cart.item_count > 0 %}
                         <span class="badge bg-warning text-dark ms-1">
                             {{ cart.item_count }}
@@ -69,7 +65,34 @@
                 </a>
             </li>
 
-            <!-- Suppliers -->
+            <li class="menu-label">Reports</li>
+            <li>
+                <a href="{% url 'sales_report' %}"
+                   class="{% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i> Sales Report
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'stock_report' %}"
+                   class="{% if request.resolver_match.url_name == 'stock_report' %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-stacked"></i> Stock Report
+                </a>
+            </li>
+            {% if request.user.profile.role == 'admin' %}
+            <li>
+                <a href="{% url 'credit_report' %}"
+                   class="{% if request.resolver_match.url_name == 'credit_report' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Credit Report
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'deposit_report' %}"
+                   class="{% if request.resolver_match.url_name == 'deposit_report' %}active{% endif %}">
+                    <i class="fa-solid fa-piggy-bank"></i> Deposit Report
+                </a>
+            </li>
+
             <li class="menu-label">Suppliers</li>
             <li>
                 <a href="{% url 'supplier_list' %}"
@@ -90,7 +113,6 @@
                 </a>
             </li>
 
-            <!-- Deposits -->
             <li class="menu-label">Deposit Scheme</li>
             <li>
                 <a href="{% url 'customer_list' %}"
@@ -99,8 +121,20 @@
                 </a>
             </li>
 
+            <li class="menu-label">System</li>
+            <li>
+                <a href="{% url 'notification_list' %}"
+                   class="{% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    {% if notif_unread_count > 0 %}
+                    <span class="badge bg-danger ms-auto">
+                        {{ notif_unread_count }}
+                    </span>
+                    {% endif %}
+                </a>
+            </li>
+
             {% if request.user.profile.role == 'admin' %}
-            <!-- Admin only -->
             <li class="menu-label">Admin</li>
             <li>
                 <a href="{% url 'user_list' %}"
@@ -111,7 +145,6 @@
             {% endif %}
         </ul>
 
-        <!-- Sidebar footer -->
         <div class="sidebar-footer">
             <span>
                 <i class="fa-solid fa-circle-user me-1"></i>
@@ -123,8 +156,9 @@
         </div>
     </nav>
 
-    <!-- ── Main Content ──────────────────────────────── -->
+    <!-- Main Content -->
     <div id="content">
+
         <!-- Topbar -->
         <nav class="topbar">
             <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary">
@@ -134,6 +168,47 @@
                 <span class="badge-role">
                     {{ request.user.profile.get_role_display }}
                 </span>
+                <!-- Notification Bell -->
+                <div class="notif-wrapper">
+                    <a href="{% url 'notification_list' %}"
+                       class="notif-bell {% if notif_unread_count > 0 %}has-unread{% endif %}"
+                       title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if notif_unread_count > 0 %}
+                        <span class="notif-badge">{{ notif_unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    {% if notif_recent %}
+                    <div class="notif-dropdown">
+                        <div class="notif-dropdown-header">
+                            <span>Notifications</span>
+                            <form method="post" action="{% url 'mark_all_read' %}">
+                                {% csrf_token %}
+                                <button class="btn-link-sm">Mark all read</button>
+                            </form>
+                        </div>
+                        {% for notif in notif_recent %}
+                        <a href="{% url 'notification_read' notif.pk %}"
+                           class="notif-item notif-{{ notif.level }}">
+                            <i class="fa-solid
+                                {% if notif.level == 'danger' %}fa-circle-exclamation
+                                {% elif notif.level == 'warning' %}fa-triangle-exclamation
+                                {% elif notif.level == 'success' %}fa-circle-check
+                                {% else %}fa-circle-info{% endif %} me-2"></i>
+                            <div>
+                                <div class="notif-item-title">{{ notif.title }}</div>
+                                <div class="notif-item-time">
+                                    {{ notif.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                        <a href="{% url 'notification_list' %}" class="notif-view-all">
+                            View all notifications
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </nav>
 
@@ -153,31 +228,42 @@
         <div class="page-content">
             {% block content %}{% endblock %}
         </div>
-    </div>
-</div>
+
+    </div><!-- end #content -->
+
+</div><!-- end .wrapper -->
 
 {% else %}
-<!-- Not logged in — full page -->
+
+<!-- Not logged in -->
 <div class="auth-wrapper">
     {% if messages %}
-    <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index:9999; min-width:320px;">
+    <div class="position-fixed top-0 start-50 translate-middle-x mt-3"
+         style="z-index:9999; min-width:320px;">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+        
         {% endfor %}
     </div>
-    {% endif %}
-    {% block content %}{% endblock %}
+    
+  {% else %}
+
+<!-- Not logged in -->
+<div class="auth-wrapper">
+    
+    {% block auth_content %}{% endblock %}
 </div>
+
+{% endif %}
+</div>
+
 {% endif %}
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // Sidebar toggle — pure Django, no framework needed
     const toggle = document.getElementById('sidebarToggle');
     if (toggle) {
         toggle.addEventListener('click', () => {

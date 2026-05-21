@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block title %}Credit Report — NyondoStock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-file-invoice-dollar me-2 text-warning"></i>
+        Supplier Credit Report
+    </h4>
+    <button onclick="window.print()" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-print me-1"></i> Print
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 no-print">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Payment From</label>
+                <input type="date" name="date_from"
+                       value="{{ date_from|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Payment To</label>
+                <input type="date" name="date_to"
+                       value="{{ date_to|date:'Y-m-d' }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Supplier</label>
+                <select name="supplier" class="form-select">
+                    <option value="">All Suppliers</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s.pk }}"
+                        {% if supplier_id == s.pk|stringformat:'s' %}selected{% endif %}>
+                        {{ s.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="pending"
+                        {% if status == 'pending' %}selected{% endif %}>
+                        Pending
+                    </option>
+                    <option value="overdue"
+                        {% if status == 'overdue' %}selected{% endif %}>
+                        Overdue
+                    </option>
+                    <option value="cleared"
+                        {% if status == 'cleared' %}selected{% endif %}>
+                        Cleared
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter me-1"></i> Apply
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'credit_report' %}"
+                   class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+            <i class="fa-solid fa-file-invoice-dollar stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.2rem;">
+                    UGX {{ total_credit|floatformat:0 }}
+                </div>
+                <div class="stat-label">Total Credit Given</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#10b981,#059669);">
+            <i class="fa-solid fa-money-bill stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.2rem;">
+                    UGX {{ total_paid|floatformat:0 }}
+                </div>
+                <div class="stat-label">Total Paid</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+            <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+            <div>
+                <div class="stat-value" style="font-size:1.2rem;">
+                    UGX {{ total_outstanding|floatformat:0 }}
+                </div>
+                <div class="stat-label">Outstanding Balance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card"
+             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <i class="fa-solid fa-clock stat-icon"></i>
+            <div>
+                <div class="stat-value">{{ overdue_count }}</div>
+                <div class="stat-label">Overdue Accounts</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Credit Accounts -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-list me-2"></i> Credit Accounts
+        <span class="badge bg-secondary ms-2">{{ credits|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Supplier</th>
+                    <th>Delivery Date</th>
+                    <th>Total (UGX)</th>
+                    <th>Paid (UGX)</th>
+                    <th>Balance (UGX)</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for credit in credits %}
+                <tr>
+                    <td>{{ credit.delivery.supplier.name }}</td>
+                    <td>{{ credit.delivery.delivery_date|date:"d M Y" }}</td>
+                    <td>{{ credit.total_amount|floatformat:0 }}</td>
+                    <td class="text-success">{{ credit.amount_paid|floatformat:0 }}</td>
+                    <td class="text-danger fw-bold">
+                        {{ credit.balance_due|floatformat:0 }}
+                    </td>
+                    <td>
+                        {% if credit.due_date %}
+                            {% if credit.due_date < today and not credit.is_cleared %}
+                            <span class="text-danger fw-bold">
+                                {{ credit.due_date|date:"d M Y" }}
+                                <small>(Overdue)</small>
+                            </span>
+                            {% else %}
+                            {{ credit.due_date|date:"d M Y" }}
+                            {% endif %}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if credit.is_cleared %}
+                        <span class="badge bg-success">Cleared</span>
+                        {% elif credit.due_date and credit.due_date < today %}
+                        <span class="badge bg-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        No credit accounts match filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Payment History -->
+<div class="card">
+    <div class="card-header">
+        <i class="fa-solid fa-money-bill me-2"></i>
+        Payment History
+        <span class="text-muted small ms-2">
+            {{ date_from|date:"d M Y" }} — {{ date_to|date:"d M Y" }}
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Supplier</th>
+                    <th>Amount (UGX)</th>
+                    <th>Received By</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                    <td>
+                        {{ payment.credit_account.delivery.supplier.name }}
+                    </td>
+                    <td>
+                        <strong>{{ payment.amount|floatformat:0 }}</strong>
+                    </td>
+                    <td>{{ payment.received_by|default:"—" }}</td>
+                    <td>{{ payment.notes|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        No payments in selected period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if payments %}
+            <tfoot>
+                <tr class="fw-bold table-success">
+                    <td colspan="2">TOTAL PAYMENTS</td>
+                    <td>UGX {{ payments_total|floatformat:0 }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}
