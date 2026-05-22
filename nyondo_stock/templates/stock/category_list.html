@@ -64,8 +64,9 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td>
+  <td>
     <div class="d-flex gap-1">
+        {% if cat.pk %}
         <a href="{% url 'category_edit' cat.pk %}"
            class="btn btn-sm btn-outline-primary"
            title="Edit">
@@ -81,8 +82,13 @@
                 <i class="fa-solid fa-trash"></i>
             </button>
         </form>
+        {% endif %}
     </div>
 </td>
+                            <td colspan="3" class="text-center text-muted py-4">
+                                <i class="fa-solid fa-tags fa-2x mb-2"></i>
+                                <div>No categories found.</div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -54,7 +54,6 @@ class Product(models.Model):
         return prices.get(customer_type, self.retail_price)
 
     def clean(self):
-        from django.core.exceptions import ValidationError
         errors = {}
         if self.wholesale_price <= self.unit_cost:
             errors['wholesale_price'] = "Wholesale price must be greater than unit cost."
@@ -76,7 +75,25 @@ class Product(models.Model):
         return self.quantity_in_stock <= self.low_stock_threshold
 
     def clean(self):
+        def clean(self):
+            errors = {}
+            if self.wholesale_price and self.unit_cost:
+                if self.wholesale_price <= self.unit_cost:
+                    errors['wholesale_price'] = "Wholesale price must be greater than unit cost."
+            if self.retailer_price and self.unit_cost:
+                if self.retailer_price <= self.unit_cost:
+                  errors['retailer_price'] = "Retailer price must be greater than unit cost."
+                if self.retail_price and self.unit_cost:
+                 if self.retail_price <= self.unit_cost:
+                  errors['retail_price'] = "Retail price must be greater than unit cost."
+                if self.wholesale_price and self.retailer_price:
+                 if self.wholesale_price >= self.retailer_price:
+                  errors['wholesale_price'] = "Wholesale price must be less than retailer price."
+                if self.retailer_price and self.retail_price:
+                 if self.retailer_price >= self.retail_price:
+                  errors['retailer_price'] = "Retailer price must be less than individual retail price."
+                if errors:
+                     raise ValidationError(errors)
         
-        if self.selling_price <= self.unit_cost:
-            raise ValidationError("Selling price must be greater than unit cost.")
+
 

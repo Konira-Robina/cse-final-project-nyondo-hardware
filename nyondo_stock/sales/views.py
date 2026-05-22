@@ -6,11 +6,9 @@ from .forms import CartCustomerForm, AddToCartForm, UpdateCartItemForm
 from stock.models import Product
 from notifications.utils import notify_new_sale, notify_low_stock
 
-
 def get_or_create_cart(user):
-    cart, _ = Cart.objects.get_or_create(user=user)
+    cart, _ = Cart.objects.get_or_create(attendant=user)
     return cart
-
 
 @login_required
 def cart_view(request):
