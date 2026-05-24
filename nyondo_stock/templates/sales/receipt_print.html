@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ sale.receipt_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #fff;
+            color: #000;
+            padding: 10px;
+        }
+
+        .receipt {
+            max-width: 380px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .receipt-number {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 8px 0;
+            border: 1px dashed #000;
+            padding: 4px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        table th {
+            border-bottom: 1px solid #000;
+            padding: 3px 0;
+            text-align: left;
+        }
+
+        table td {
+            padding: 3px 0;
+            vertical-align: top;
+        }
+
+        table td:last-child,
+        table th:last-child {
+            text-align: right;
+        }
+
+        table td:nth-child(2),
+        table th:nth-child(2) {
+            text-align: center;
+        }
+
+        .totals {
+            border-top: 1px dashed #000;
+            padding-top: 6px;
+            margin-top: 6px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .grand-total {
+            font-size: 15px;
+            font-weight: bold;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 5px 0;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 8px;
+            font-size: 11px;
+        }
+
+        .print-btn {
+            display: block;
+            margin: 15px auto;
+            padding: 8px 30px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        @media print {
+            .print-btn { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt">
+
+    <!-- Header -->
+    <div class="header">
+        <h2>NYONDO General Hardware Ltd</h2>
+        <p>Nansana, Uganda</p>
+        <p>Tel: 0789-193-898</p>
+    </div>
+
+    <!-- Receipt Number -->
+    <div class="receipt-number">
+        Receipt #{{ sale.receipt_number }}
+    </div>
+
+    <!-- Sale Info -->
+    <div class="info-row">
+        <span>Date:</span>
+        <span>{{ sale.sale_date|date:"d/m/Y H:i" }}</span>
+    </div>
+    <div class="info-row">
+        <span>Served By:</span>
+        <span>{{ sale.served_by.get_full_name }}</span>
+    </div>
+    <div class="info-row">
+        <span>Customer:</span>
+        <span>{{ sale.customer_name|default:"Walk-in" }}</span>
+    </div>
+    {% if sale.customer_phone %}
+    <div class="info-row">
+        <span>Phone:</span>
+        <span>{{ sale.customer_phone }}</span>
+    </div>
+    {% endif %}
+    <div class="info-row">
+        <span>Customer Type:</span>
+        <span>{{ sale.get_customer_type_display }}</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Items -->
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td style="text-align:center;">{{ item.quantity }}</td>
+                <td style="text-align:right;">{{ item.unit_price|floatformat:0 }}</td>
+                <td style="text-align:right;">{{ item.line_total|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="totals">
+        <div class="total-row">
+            <span>Subtotal:</span>
+            <span>UGX {{ sale.subtotal|floatformat:0 }}</span>
+        </div>
+        <div class="total-row">
+            <span>Transport:</span>
+            <span>
+                {% if sale.transport_status == 'free' %}
+                    Free
+                {% elif sale.transport_status == 'charged' %}
+                    UGX 30,000
+                {% else %}
+                    —
+                {% endif %}
+            </span>
+        </div>
+        <div class="total-row grand-total">
+            <span>TOTAL:</span>
+            <span>UGX {{ sale.grand_total|floatformat:0 }}</span>
+        </div>
+    </div>
+
+    <!-- Delivery Info -->
+    {% if sale.delivery_requested %}
+    <div class="divider"></div>
+    <div class="info-row">
+        <span>Delivery:</span>
+        <span>{{ sale.get_transport_status_display }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p>Free delivery within 10km for orders >= UGX 500,000</p>
+        <p style="margin-top:8px; font-weight:bold;">
+            ** Please keep this receipt **
+        </p>
+    </div>
+
+</div>
+
+<!-- Print Button — hidden when printing -->
+<button class="print-btn" onclick="window.print()">
+    Print Receipt
+</button>
+
+</body>
+</html>

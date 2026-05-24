@@ -5,13 +5,30 @@ from django.contrib import messages
 from .models import DepositCustomer, DepositRecord, GoodsPickup
 from .forms import DepositCustomerForm, DepositRecordForm
 from stock.views import role_required
+from django.db.models import Q
 from notifications.utils import notify_new_deposit, notify_deposit_ready
 
 
 @role_required(['admin', 'sales_attendant'])
+@role_required(['admin', 'sales_attendant'])
 def customer_list(request):
+    search = request.GET.get('search', '')
     customers = DepositCustomer.objects.filter(is_active=True)
-    return render(request, 'deposits/customer_list.html', {'customers': customers})
+
+    if search:
+        customers = customers.filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(nin__icontains=search) |
+            Q(phone__icontains=search) |
+            Q(employer__icontains=search)
+        )
+
+    return render(request, 'deposits/customer_list.html', {
+        'customers': customers,
+        'search': search,
+        'total_count': customers.count(),
+    })
 
 
 @role_required(['admin', 'sales_attendant'])

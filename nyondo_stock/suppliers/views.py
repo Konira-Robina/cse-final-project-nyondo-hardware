@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import (Supplier, SupplierDelivery, SupplierDeliveryItem,SupplierCreditAccount, SupplierPayment)
 from .forms import (SupplierForm, SupplierDeliveryForm, SupplierDeliveryItemForm, SupplierPaymentForm)
- 
+from django.db import models
 from stock.views import role_required
 from notifications.utils import (notify_new_delivery, notify_credit_payment)
 
@@ -12,16 +12,35 @@ from notifications.utils import (notify_new_delivery, notify_credit_payment)
 
 @role_required(['store_manager', 'admin'])
 def supplier_list(request):
+    search = request.GET.get('search', '')
     suppliers = Supplier.objects.all()
+
+    if search:
+        suppliers = suppliers.filter(
+            models.Q(name__icontains=search) |
+            models.Q(contact_person__icontains=search) |
+            models.Q(phone__icontains=search)
+        )
+
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(suppliers, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     form = SupplierForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
             messages.success(request, "Supplier registered.")
             return redirect('supplier_list')
+
     return render(request, 'suppliers/supplier_list.html', {
-        'suppliers': suppliers,
+        'suppliers': page_obj,
+        'page_obj': page_obj,
         'form': form,
+        'search': search,
+        'total_count': suppliers.count(),
     })
 
 

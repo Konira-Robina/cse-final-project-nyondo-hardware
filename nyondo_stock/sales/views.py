@@ -5,6 +5,8 @@ from .models import Cart, CartItem, Sale, SaleItem
 from .forms import CartCustomerForm, AddToCartForm, UpdateCartItemForm
 from stock.models import Product
 from notifications.utils import notify_new_sale, notify_low_stock
+from django.core.paginator import Paginator
+from django.db import models
 
 def get_or_create_cart(user):
     cart, _ = Cart.objects.get_or_create(attendant=user)
@@ -139,9 +141,57 @@ def receipt_view(request, pk):
         'sale': sale,
         'items': items,
     })
+@login_required
+def receipt_print_view(request, pk):
+    sale = get_object_or_404(Sale, pk=pk)
+    items = sale.items.select_related('product').all()
+    return render(request, 'sales/receipt_print.html', {
+        'sale': sale,
+        'items': items,
+    })
 
+@login_required
 
 @login_required
 def sales_list(request):
+    search = request.GET.get('search', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    customer_type = request.GET.get('customer_type', '')
+
     sales = Sale.objects.select_related('served_by').order_by('-sale_date')
-    return render(request, 'sales/sales_list.html', {'sales': sales})
+
+    if search:
+        sales = sales.filter(
+            models.Q(receipt_number__icontains=search) |
+            models.Q(customer_name__icontains=search) |
+            models.Q(customer_phone__icontains=search)
+        )
+
+    if date_from:
+        sales = sales.filter(sale_date__date__gte=date_from)
+
+    if date_to:
+        sales = sales.filter(sale_date__date__lte=date_to)
+
+    if customer_type:
+        sales = sales.filter(customer_type=customer_type)
+
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(sales, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'sales/sales_list.html', {
+        'sales': page_obj,
+        'page_obj': page_obj,
+        'search': search,
+        'date_from': date_from,
+        'date_to': date_to,
+        'customer_type': customer_type,
+        'customer_type_choices': Sale.CUSTOMER_TYPE_CHOICES,
+        'total_count': sales.count(),
+    })
+
+

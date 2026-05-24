@@ -4,7 +4,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">
-        <i class="fa-solid fa-boxes-stacked me-2 text-warning"></i> Products
+        <i class="fa-solid fa-boxes-stacked me-2 text-warning"></i>Products in Stock
     </h4>
     {% if request.user.profile.role in 'store_manager,admin' %}
     <a href="{% url 'product_add' %}" class="btn btn-primary">
@@ -12,6 +12,57 @@
     </a>
     {% endif %}
 </div>
+
+<!-- Search & Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Search Product</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text" name="search" value="{{ search }}" class="form-control"
+                        placeholder="Search by product name...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Filter by Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.pk }}"
+                        {% if selected_category and selected_category.pk == cat.pk %}selected{% endif %}>       
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Search result info -->
+{% if search or selected_category %}
+<div class="alert alert-info py-2 mb-3">
+    <i class="fa-solid fa-circle-info me-2"></i>
+    Showing <strong>{{ products|length }}</strong> result(s)
+    {% if search %}for <strong>"{{ search }}"</strong>{% endif %}
+    {% if selected_category %}in selected category{% endif %}.
+    <a href="{% url 'product_list' %}" class="ms-2 alert-link">Clear filters</a>
+</div>
+{% endif %}
 
 {% if low_stock_count > 0 %}
 <div class="alert alert-danger d-flex align-items-center mb-4">
@@ -57,10 +108,13 @@
                         <td>
                             {% if product.is_low_stock %}
                             <span class="stock-low">
-                                <i class="fa-solid fa-arrow-down me-1"></i>{{ product.quantity_in_stock }}
+                                <i class="fa-solid fa-arrow-down me-1"></i>
+                                {{ product.quantity_in_stock }}
                             </span>
                             {% else %}
-                            <span class="stock-ok">{{ product.quantity_in_stock }}</span>
+                            <span class="stock-ok">
+                                {{ product.quantity_in_stock }}
+                            </span>
                             {% endif %}
                         </td>
                         <td>
@@ -72,20 +126,17 @@
                         </td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a href="{% url 'product_detail' product.pk %}"
-                                   class="btn btn-sm btn-outline-secondary"
-                                   title="View">
+                                <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-outline-secondary"
+                                    title="View">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
                                 {% if request.user.profile.role in 'store_manager,admin' %}
-                                <a href="{% url 'product_edit' product.pk %}"
-                                   class="btn btn-sm btn-outline-primary"
-                                   title="Edit">
+                                <a href="{% url 'product_edit' product.pk %}" class="btn btn-sm btn-outline-primary"
+                                    title="Edit">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <a href="{% url 'product_delete' product.pk %}"
-                                   class="btn btn-sm btn-outline-danger"
-                                   title="Delete">
+                                <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-outline-danger"
+                                    title="Delete">
                                     <i class="fa-solid fa-trash"></i>
                                 </a>
                                 {% endif %}
@@ -95,8 +146,16 @@
                     {% empty %}
                     <tr>
                         <td colspan="11" class="text-center text-muted py-5">
+                            {% if search %}
+                            <i class="fa-solid fa-magnifying-glass fa-2x mb-2 d-block"></i>
+                            No products found for <strong>"{{ search }}"</strong>.
+                            <a href="{% url 'product_list' %}" class="d-block mt-2">
+                                Clear search
+                            </a>
+                            {% else %}
                             <i class="fa-solid fa-box-open fa-2x mb-2 d-block"></i>
                             No products registered yet.
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -105,4 +164,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

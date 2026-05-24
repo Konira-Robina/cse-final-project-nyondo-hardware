@@ -14,7 +14,6 @@ def validate_ugandan_phone(value):
             "Enter a valid Ugandan phone number e.g. 0772123456 or +256772123456."
         )
 
-
 def validate_nin(value):
     """
     Uganda NIN format: 14 alphanumeric characters

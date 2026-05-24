@@ -6,60 +6,176 @@
     <i class="fa-solid fa-receipt me-2 text-warning"></i> Sales History
 </h4>
 
+<!-- Search & Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text" name="search"
+                           value="{{ search }}"
+                           class="form-control"
+                           placeholder="Receipt #, name, phone...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from"
+                       value="{{ date_from }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to"
+                       value="{{ date_to }}"
+                       class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Customer Type</label>
+                <select name="customer_type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for val, label in customer_type_choices %}
+                    <option value="{{ val }}"
+                        {% if customer_type == val %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'sales_list' %}"
+                   class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if search or date_from or date_to or customer_type %}
+<div class="alert alert-info py-2 mb-3">
+    <i class="fa-solid fa-circle-info me-2"></i>
+    Showing <strong>{{ total_count }}</strong> result(s).
+    <a href="{% url 'sales_list' %}" class="ms-2 alert-link">Clear filters</a>
+</div>
+{% endif %}
+
 <div class="card">
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Receipt #</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Type</th>
-                    <th>Subtotal</th>
-                    <th>Transport</th>
-                    <th>Grand Total</th>
-                    <th>Served By</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sale in sales %}
-                <tr>
-                    <td>
-                        <span class="badge bg-warning text-dark">
-                            {{ sale.receipt_number }}
-                        </span>
-                    </td>
-                    <td>{{ sale.sale_date|date:"d M Y, H:i" }}</td>
-                    <td>{{ sale.customer_name|default:"Walk-in" }}</td>
-                    <td>{{ sale.get_customer_type_display }}</td>
-                    <td>{{ sale.subtotal|floatformat:0 }}</td>
-                    <td>
-                        {% if sale.transport_status == 'free' %}
-                        <span class="text-success">Free</span>
-                        {% elif sale.transport_status == 'charged' %}
-                        30,000
-                        {% else %}—{% endif %}
-                    </td>
-                    <td><strong>{{ sale.grand_total|floatformat:0 }}</strong></td>
-                    <td>{{ sale.served_by.get_full_name }}</td>
-                    <td>
-                        <a href="{% url 'receipt' sale.pk %}"
-                           class="btn btn-sm btn-outline-secondary">
-                            <i class="fa-solid fa-eye"></i>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Receipt #</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Subtotal</th>
+                        <th>Transport</th>
+                        <th>Grand Total</th>
+                        <th>Served By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                {{ sale.receipt_number }}
+                            </span>
+                        </td>
+                        <td>{{ sale.sale_date|date:"d M Y, H:i" }}</td>
+                        <td>{{ sale.customer_name|default:"Walk-in" }}</td>
+                        <td>{{ sale.get_customer_type_display }}</td>
+                        <td>{{ sale.subtotal|floatformat:0 }}</td>
+                        <td>
+                            {% if sale.transport_status == 'free' %}
+                            <span class="text-success">Free</span>
+                            {% elif sale.transport_status == 'charged' %}
+                            30,000
+                            {% else %}—{% endif %}
+                        </td>
+                        <td><strong>{{ sale.grand_total|floatformat:0 }}</strong></td>
+                        <td>{{ sale.served_by.get_full_name }}</td>
+                        <td>
+                            <a href="{% url 'receipt' sale.pk %}"
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            {% if search %}
+                            <i class="fa-solid fa-magnifying-glass fa-2x mb-2 d-block"></i>
+                            No sales found for <strong>"{{ search }}"</strong>.
+                            {% else %}
+                            <i class="fa-solid fa-receipt fa-2x mb-2 d-block"></i>
+                            No sales recorded yet.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top">
+            <small class="text-muted">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                — {{ total_count }} total
+            </small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.previous_page_number }}&search={{ search }}&date_from={{ date_from }}&date_to={{ date_to }}&customer_type={{ customer_type }}">
+                            <i class="fa-solid fa-chevron-left"></i>
                         </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9" class="text-center text-muted py-5">
-                        <i class="fa-solid fa-receipt fa-2x mb-2 d-block"></i>
-                        No sales recorded yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ num }}&search={{ search }}&date_from={{ date_from }}&date_to={{ date_to }}&customer_type={{ customer_type }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.next_page_number }}&search={{ search }}&date_from={{ date_from }}&date_to={{ date_to }}&customer_type={{ customer_type }}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

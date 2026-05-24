@@ -118,5 +118,25 @@ def category_edit(request, pk):
         'title': f'Edit Category — {category.name}',
     })
 
+@login_required
+def product_list(request):
+    search = request.GET.get('search', '')
+    category_id = request.GET.get('category', '')
+    products = Product.objects.select_related('category').all()
+    if search:
+        products = products.filter(name__icontains=search)
+    if category_id:
+        products = products.filter(category_id=category_id)
+    low_stock = products.filter(
+        quantity_in_stock__lte=models.F('low_stock_threshold'))
+    categories = Category.objects.all()
+
+    return render(request, 'stock/product_list.html', {
+        'products': products,
+        'low_stock_count': low_stock.count(),
+        'categories': categories,
+        'search': search,
+        'selected_category': category_id,
+    })
 
 

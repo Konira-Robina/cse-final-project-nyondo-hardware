@@ -12,7 +12,10 @@ from deposits.models import DepositRecord
 from django.db import models
 from django.utils import timezone
 
-
+def index_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'index.html')
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
