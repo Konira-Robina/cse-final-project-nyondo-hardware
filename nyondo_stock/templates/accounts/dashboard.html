@@ -7,43 +7,107 @@
 </h4>
 
 <!-- Stat Cards -->
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
+
+    <!-- Total Products -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#f59e0b,#d97706);">
-            <i class="fa-solid fa-boxes-stacked stat-icon"></i>
-            <div>
-                <div class="stat-value">{{ total_products }}</div>
-                <div class="stat-label">Total Products</div>
+        <a href="{% url 'product_list' %}" class="text-decoration-none">
+
+            <div class="modern-stat-card">
+
+                <div class="glow glow-blue"></div>
+
+                <div class="stat-top">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+
+                <div class="stat-content">
+                    <h2>{{ total_products }}</h2>
+                    <p>Total Products</p>
+                </div>
+
             </div>
-        </div>
+
+        </a>
     </div>
+
+    <!-- Low Stock -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#ef4444,#dc2626);">
-            <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
-            <div>
-                <div class="stat-value">{{ low_stock }}</div>
-                <div class="stat-label">Low Stock Items</div>
+        <a href="{% url 'product_list' %}?status=low" class="text-decoration-none">
+
+            <div class="modern-stat-card">
+
+                <div class="glow glow-red"></div>
+
+                <div class="stat-top">
+                    <div class="stat-icon danger">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+
+                <div class="stat-content">
+                    <h2>{{ low_stock }}</h2>
+                    <p>Low Stock Items</p>
+                </div>
+
             </div>
-        </div>
+
+        </a>
     </div>
+
+    <!-- Sales -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#10b981,#059669);">
-            <i class="fa-solid fa-receipt stat-icon"></i>
-            <div>
-                <div class="stat-value">{{ todays_sales }}</div>
-                <div class="stat-label">Today's Sales</div>
+        <a href="{% url 'sales_list' %}" class="text-decoration-none">
+
+            <div class="modern-stat-card">
+
+                <div class="glow glow-purple"></div>
+
+                <div class="stat-top">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+
+                <div class="stat-content">
+                    <h2>{{ todays_sales }}</h2>
+                    <p>Today's Sales</p>
+                </div>
+
             </div>
-        </div>
+
+        </a>
     </div>
+
+    <!-- Revenue -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#6366f1,#4f46e5);">
-            <i class="fa-solid fa-file-invoice-dollar stat-icon"></i>
-            <div>
-                <div class="stat-value">{{ pending_credits }}</div>
-                <div class="stat-label">Pending Credits</div>
+        <a href="{% url 'sales_report' %}" class="text-decoration-none">
+
+            <div class="modern-stat-card">
+
+                <div class="glow glow-green"></div>
+
+                <div class="stat-top">
+                    <div class="stat-icon success">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+
+                <div class="stat-content">
+                    <h2 class="revenue-text">
+                        UGX {{ todays_revenue|floatformat:0 }}
+                    </h2>
+
+                    <p>Today's Revenue</p>
+                </div>
+
             </div>
-        </div>
+
+        </a>
     </div>
+
 </div>
 
 <!-- Quick Actions -->
