@@ -7,6 +7,9 @@
         <i class="fa-solid fa-piggy-bank me-2 text-warning"></i>
         Deposit Scheme Report
     </h4>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="margin-left: 250px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
     <button onclick="window.print()" class="btn btn-outline-secondary">
         <i class="fa-solid fa-print me-1"></i> Print
     </button>
@@ -46,42 +49,38 @@
 <!-- Summary Cards -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <div class="stat-card">
             <i class="fa-solid fa-users stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value">{{ total_customers }}</div>
                 <div class="stat-label">Active Customers</div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#10b981,#059669);">
+        <div class="stat-card">
             <i class="fa-solid fa-piggy-bank stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value" style="font-size:1.1rem;">
                     UGX {{ period_deposits_amount|floatformat:0 }}
-                </div>
+                </div style="margin-left: 20px;">
                 <div class="stat-label">Period Deposits</div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+        <div class="stat-card">
             <i class="fa-solid fa-box-open stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value">{{ pending_pickups|length }}</div>
                 <div class="stat-label">Ready for Pickup</div>
             </div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+        <div class="stat-card">
             <i class="fa-solid fa-check-circle stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value">{{ pickups_count }}</div>
                 <div class="stat-label">Pickups This Period</div>
             </div>
@@ -92,7 +91,7 @@
 <!-- Ready for Pickup — most important section -->
 {% if pending_pickups %}
 <div class="card mb-4 border-warning">
-    <div class="card-header bg-warning text-dark">
+    <div class="card-header" style="background-color: #fef3C7;">
         <i class="fa-solid fa-box-open me-2"></i>
         Customers Ready for Pickup
         <span class="badge bg-dark ms-2">{{ pending_pickups|length }}</span>
@@ -121,7 +120,7 @@
                     <td>UGX {{ item.product.retail_price|floatformat:0 }}</td>
                     <td class="no-print">
                         <a href="{% url 'goods_pickup' item.deposit.pk %}"
-                           class="btn btn-sm btn-warning text-dark">
+                           class="btn btn-sm btn-warning text-dark" style="background-color: #fef3C7;">
                             <i class="fa-solid fa-box-open me-1"></i> Process
                         </a>
                     </td>

@@ -2,9 +2,14 @@
 {% block title %}New Sale — Cart{% endblock %}
 
 {% block content %}
+<div style="display: inline-flex;">
 <h4 class="mb-4 fw-bold">
     <i class="fa-solid fa-cart-shopping me-2 text-warning"></i> New Sale
 </h4>
+<a href="{% url 'sales_list' %}" class="btn btn-outline-secondary" style="margin-left: 700px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Sales History
+    </a>
+    </div>
 
 <div class="row g-3">
     <!-- Left: Customer + Add Item -->

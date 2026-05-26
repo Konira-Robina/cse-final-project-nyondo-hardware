@@ -3,10 +3,15 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
+    <div style="display: inline-flex;">
     <h4 class="fw-bold mb-0">
         <i class="fa-solid fa-file-invoice-dollar me-2 text-warning"></i>
         Supplier Credit Report
     </h4>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="margin-left: 250px;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+    </div>
     <button onclick="window.print()" class="btn btn-outline-secondary">
         <i class="fa-solid fa-print me-1"></i> Print
     </button>
@@ -76,10 +81,9 @@
 <!-- Summary Cards -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+        <div class="stat-card">
             <i class="fa-solid fa-file-invoice-dollar stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value" style="font-size:1.2rem;">
                     UGX {{ total_credit|floatformat:0 }}
                 </div>
@@ -88,10 +92,9 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#10b981,#059669);">
+        <div class="stat-card">
             <i class="fa-solid fa-money-bill stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value" style="font-size:1.2rem;">
                     UGX {{ total_paid|floatformat:0 }}
                 </div>
@@ -100,10 +103,9 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+        <div class="stat-card">
             <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value" style="font-size:1.2rem;">
                     UGX {{ total_outstanding|floatformat:0 }}
                 </div>
@@ -112,10 +114,9 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card"
-             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <div class="stat-card">
             <i class="fa-solid fa-clock stat-icon"></i>
-            <div>
+            <div style="margin-left: 20px;">
                 <div class="stat-value">{{ overdue_count }}</div>
                 <div class="stat-label">Overdue Accounts</div>
             </div>

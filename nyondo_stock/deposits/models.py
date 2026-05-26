@@ -23,9 +23,8 @@ class DepositCustomer(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def total_deposited(self):
-        return sum(d.amount for d in self.deposits.all())
-
-
+        return sum(d.amount_paid for d in self.deposits.all())
+      
 class DepositRecord(models.Model):
     customer = models.ForeignKey(DepositCustomer, on_delete=models.CASCADE, related_name='deposits')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, limit_choices_to={'is_deposit_eligible': True})

@@ -6,6 +6,9 @@
     <h4 class="fw-bold mb-0">
         <i class="fa-solid fa-boxes-stacked me-2 text-warning"></i>Products in Stock
     </h4>
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
     {% if request.user.profile.role in 'store_manager,admin' %}
     <a href="{% url 'product_add' %}" class="btn btn-primary">
         <i class="fa-solid fa-plus me-2"></i> Add Product

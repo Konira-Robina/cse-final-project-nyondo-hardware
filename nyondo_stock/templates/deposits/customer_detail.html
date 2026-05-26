@@ -1,143 +1,149 @@
-{% extends 'base.html' %}
-{% block title %}{{ customer.full_name }} — NyondoStock{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}{{ customer.full_name }} —
+NyondoStock{% endblock %} {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">
-        <i class="fa-solid fa-user me-2 text-warning"></i>
-        {{ customer.full_name }}
-        {% if not customer.is_active %}
-        <span class="badge bg-secondary ms-2">Inactive</span>
-        {% endif %}
-    </h4>
-    <div class="d-flex gap-2">
-        <a href="{% url 'deposit_record' customer.pk %}"
-           class="btn btn-primary
-           {% if not customer.is_active %}disabled{% endif %}">
-            <i class="fa-solid fa-plus me-1"></i> Record Deposit
-        </a>
-        {% if request.user.profile.role == 'admin' %}
-        <a href="{% url 'customer_edit' customer.pk %}"
-           class="btn btn-outline-primary">
-            <i class="fa-solid fa-pen me-1"></i> Edit
-        </a>
-        <a href="{% url 'customer_deactivate' customer.pk %}"
-           class="btn {% if customer.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
-            <i class="fa-solid
-               {% if customer.is_active %}fa-user-slash{% else %}fa-user-check{% endif %} me-1"></i>
-            {% if customer.is_active %}Deactivate{% else %}Activate{% endif %}
-        </a>
-        {% endif %}
-        <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-arrow-left me-1"></i> Back
-        </a>
-    </div>
-</div>
+  <h4 class="fw-bold mb-0">
+    <i class="fa-solid fa-user me-2 text-warning"></i>
+    {{ customer.full_name }} {% if not customer.is_active %}
+    <span class="badge bg-secondary ms-2">Inactive</span>
+    {% endif %}
+  </h4>
+  <div class="d-flex gap-2">
+    <a
+      href="{% url 'deposit_record' customer.pk %}"
+      class="btn btn-primary {% if not customer.is_active %}disabled{% endif %}"
+    >
+      <i class="fa-solid fa-plus me-1"></i> Record Deposit
+    </a>
+    {% if request.user.profile.role == 'admin' %}
+    <a
+      href="{% url 'customer_edit' customer.pk %}"
+      class="btn btn-outline-primary"
+    >
+      <i class="fa-solid fa-pen me-1"></i> Edit
+    </a>
+    <a
+      href="{% url 'customer_deactivate' customer.pk %}"
+      class="btn {% if customer.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+    >
+      <i
+        class="fa-solid {% if customer.is_active %}fa-user-slash{% else %}fa-user-check{% endif %} me-1"
+      ></i>
+      {% if customer.is_active %}Deactivate{% else %}Activate{% endif %}
+    </a>
+    {% endif %}
+    <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">
+      <i class="fa-solid fa-arrow-left me-1"></i> Back
+    </a>
+  </div>
 </div>
 
 <div class="row g-3">
-    <div class="col-md-4">
-        <div class="card mb-3">
-            <div class="card-header">
-                <i class="fa-solid fa-circle-info me-2"></i> Customer Info
-            </div>
-            <div class="card-body">
-                <table class="table table-sm table-borderless">
-                    <tr>
-                        <td class="text-muted">NIN</td>
-                        <td><code>{{ customer.nin }}</code></td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Phone</td>
-                        <td>{{ customer.phone }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Employer</td>
-                        <td>{{ customer.employer|default:"—" }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Address</td>
-                        <td>{{ customer.address|default:"—" }}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Registered</td>
-                        <td>{{ customer.registration_date|date:"d M Y" }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fa-solid fa-circle-info me-2"></i> Customer Info
+      </div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless">
+          <tr>
+            <td class="text-muted">NIN</td>
+            <td><code>{{ customer.nin }}</code></td>
+          </tr>
+          <tr>
+            <td class="text-muted">Phone</td>
+            <td>{{ customer.phone }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Employer</td>
+            <td>{{ customer.employer|default:"—" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Address</td>
+            <td>{{ customer.address|default:"—" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Registered</td>
+            <td>{{ customer.registration_date|date:"d M Y" }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
 
-        <div class="card border-warning">
-            <div class="card-body text-center">
-                <div class="display-6 fw-bold text-warning">
-                    UGX {{ total_deposited|floatformat:0 }}
-                </div>
-                <div class="text-muted">Total Deposited</div>
-            </div>
+    <div class="card border-warning">
+      <div class="card-body text-center">
+        <div class="display-6 fw-bold text-warning">
+          UGX {{ total_deposited|floatformat:0 }}
         </div>
+        <div class="text-muted">Total Deposited</div>
+      </div>
     </div>
 
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <i class="fa-solid fa-list me-2"></i> Deposit Records
-            </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Receipt #</th>
-                            <th>Product</th>
-                            <th>Amount (UGX)</th>
-                            <th>Date</th>
-                            <th>Pickup</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for deposit in deposits %}
-                        <tr>
-                            <td>
-                                <span class="badge bg-secondary">
-                                    {{ deposit.receipt_number }}
-                                </span>
-                            </td>
-                            <td>{{ deposit.product.name }}</td>
-                            <td>{{ deposit.amount_paid|floatformat:0 }}</td>
-                            <td>{{ deposit.payment_date|date:"d M Y" }}</td>
-                            <td>
-                                {% if deposit.pickups.exists %}
-                                <span class="badge bg-success">Picked Up</span>
-                                {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <a href="{% url 'deposit_receipt' deposit.pk %}"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        <i class="fa-solid fa-receipt"></i>
-                                    </a>
-                                    {% if not deposit.pickups.exists %}
-                                    <a href="{% url 'goods_pickup' deposit.pk %}"
-                                       class="btn btn-sm btn-outline-success">
-                                        <i class="fa-solid fa-box-open"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                No deposits recorded yet.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+      <div class="card">
+        <div class="card-header">
+          <i class="fa-solid fa-list me-2"></i> Deposit Records
         </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Product</th>
+                <th>Amount (UGX)</th>
+                <th>Date</th>
+                <th>Pickup</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for deposit in deposits %}
+              <tr>
+                <td>
+                  <span class="badge bg-secondary">
+                    {{ deposit.receipt_number }}
+                  </span>
+                </td>
+                <td>{{ deposit.product.name }}</td>
+                <td>{{ deposit.amount_paid|floatformat:0 }}</td>
+                <td>{{ deposit.payment_date|date:"d M Y" }}</td>
+                <td>
+                  {% if deposit.pickups.exists %}
+                  <span class="badge bg-success">Picked Up</span>
+                  {% else %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a
+                      href="{% url 'deposit_receipt' deposit.pk %}"
+                      class="btn btn-sm btn-outline-secondary"
+                    >
+                      <i class="fa-solid fa-receipt"></i>
+                    </a>
+                    {% if not deposit.pickups.exists %}
+                    <a
+                      href="{% url 'goods_pickup' deposit.pk %}"
+                      class="btn btn-sm btn-outline-success"
+                    >
+                      <i class="fa-solid fa-box-open"></i>
+                    </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  No deposits recorded yet.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  </div>
+  {% endblock %}
 </div>
-{% endblock %}

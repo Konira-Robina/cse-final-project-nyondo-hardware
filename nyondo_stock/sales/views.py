@@ -78,7 +78,8 @@ def remove_from_cart(request, pk):
 
 @login_required
 def update_cart_item(request, pk):
-    cart_item = get_object_or_404(CartItem, pk=pk, cart__user=request.user)
+    
+    cart_item = get_object_or_404(CartItem, pk=pk, cart__user=request.cart)
     if request.method == 'POST':
         form = UpdateCartItemForm(request.POST, cart_item=cart_item)
         if form.is_valid():
