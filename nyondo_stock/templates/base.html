@@ -1,442 +1,385 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>
-        {% block title %}
-            Nyondo Hardware Limitted
-        {% endblock %}
-    </title>
+    <title>{% block title %} Nyondo Hardware Limitted {% endblock %}</title>
 
     {% load static %}
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
 
     <!-- Custom CSS -->
-    <link href="{% static 'css/main.css' %}"
-          rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" />
+  </head>
 
-</head>
+  <body>
+    {% if request.user.is_authenticated %}
 
-<body>
-
-{% if request.user.is_authenticated %}
-
-<div class="wrapper">
-
-    <!-- Sidebar -->
-    <nav id="sidebar">
-
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <nav id="sidebar">
         <div class="sidebar-header">
-            <i class="fa-solid fa-warehouse me-2"></i>
-            <span>NYOND HARDWARE LTD</span>
-    </div>
+          <i class="fa-solid fa-warehouse me-2"></i>
+          <span>NYONDO HARDWARE LTD</span>
+        </div>
 
         <ul class="sidebar-menu">
 
-            <!-- Dashboard -->
-            <li>
-                <a href="{% url 'dashboard' %}"
-                   class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <i class="fa-solid fa-gauge"></i>
-                    Dashboard
-                </a>
-            </li>
+    <!-- Dashboard — everyone -->
+    <li>
+        <a href="{% url 'dashboard' %}"
+           class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-gauge"></i>
+            Dashboard
+        </a>
+    </li>
 
-            <!-- Stock -->
-            <li class="menu-label">Stock</li>
+    <!-- Stock — everyone can view products -->
+    <li class="menu-label">Stock</li>
 
-            <li>
-                <a href="{% url 'product_list' %}"
-                   class="{% if 'product' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                    Products
-                </a>
-            </li>
+    <li>
+        <a href="{% url 'product_list' %}"
+           class="{% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            Products
+        </a>
+    </li>
 
-            <li>
-                <a href="{% url 'category_list' %}"
-                   class="{% if 'category' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-tags"></i>
-                    Categories
-                </a>
-            </li>
+    <!-- Categories — store manager + admin only -->
+    {% if request.user.profile.role in 'store_manager,admin' %}
+    <li>
+        <a href="{% url 'category_list' %}"
+           class="{% if 'category' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-tags"></i>
+            Categories
+        </a>
+    </li>
+    {% endif %}
 
-            <!-- Sales -->
-            <li class="menu-label">Sales</li>
+    <!-- Sales — everyone -->
+    <li class="menu-label">Sales</li>
 
-            <li>
-                <a href="{% url 'cart' %}"
-                   class="{% if 'cart' in request.resolver_match.url_name %}active{% endif %}">
+    <li>
+        <a href="{% url 'cart' %}"
+           class="{% if 'cart' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-cart-shopping"></i>
+            New Sale
+            {% with cart=request.user.cart %}
+                {% if cart and cart.item_count > 0 %}
+                <span class="badge bg-warning text-dark ms-1">
+                    {{ cart.item_count }}
+                </span>
+                {% endif %}
+            {% endwith %}
+        </a>
+    </li>
 
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    New Sale
+    <li>
+        <a href="{% url 'sales_list' %}"
+           class="{% if request.resolver_match.url_name == 'sales_list' %}active{% endif %}">
+            <i class="fa-solid fa-receipt"></i>
+            Sales History
+        </a>
+    </li>
 
-                    {% with cart=request.user.cart %}
-                        {% if cart and cart.item_count > 0 %}
-                        <span class="badge bg-warning text-dark ms-1">
-                            {{ cart.item_count }}
-                        </span>
-                        {% endif %}
-                    {% endwith %}
-                </a>
-            </li>
+    <!-- Reports — store manager + admin only -->
+    {% if request.user.profile.role in 'store_manager,admin' %}
+    <li class="menu-label">Reports</li>
 
-            <li>
-                <a href="{% url 'sales_list' %}"
-                   class="{% if request.resolver_match.url_name == 'sales_list' %}active{% endif %}">
-                    <i class="fa-solid fa-receipt"></i>
-                    Sales History
-                </a>
-            </li>
+    <li>
+        <a href="{% url 'sales_report' %}"
+           class="{% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i>
+            Sales Report
+        </a>
+    </li>
 
-            <!-- Reports -->
-            <li class="menu-label">Reports</li>
+    <li>
+        <a href="{% url 'stock_report' %}"
+           class="{% if request.resolver_match.url_name == 'stock_report' %}active{% endif %}">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            Stock Report
+        </a>
+    </li>
+    {% endif %}
 
-            <li>
-                <a href="{% url 'sales_report' %}"
-                   class="{% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}">
-                    <i class="fa-solid fa-chart-line"></i>
-                    Sales Report
-                </a>
-            </li>
+    <!-- Credit report — admin only -->
+    {% if request.user.profile.role == 'admin' %}
+    <li>
+        <a href="{% url 'credit_report' %}"
+           class="{% if request.resolver_match.url_name == 'credit_report' %}active{% endif %}">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            Credit Report
+        </a>
+    </li>
+    {% endif %}
 
-            <li>
-                <a href="{% url 'stock_report' %}"
-                   class="{% if request.resolver_match.url_name == 'stock_report' %}active{% endif %}">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                    Stock Report
-                </a>
-            </li>
+    <!-- Deposit report — admin + sales attendant only -->
+    {% if request.user.profile.role == 'admin' or request.user.profile.role == 'sales_attendant' %}
+    <li>
+        <a href="{% url 'deposit_report' %}"
+           class="{% if request.resolver_match.url_name == 'deposit_report' %}active{% endif %}">
+            <i class="fa-solid fa-piggy-bank"></i>
+            Deposit Report
+        </a>
+    </li>
+    {% endif %}
 
-            {% if request.user.profile.role == 'admin' %}
-            <li>
-                <a href="{% url 'credit_report' %}"
-                   class="{% if request.resolver_match.url_name == 'credit_report' %}active{% endif %}">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    Credit Report
-                </a>
-            </li>
+    <!-- Suppliers — store manager + admin only -->
+    {% if request.user.profile.role in 'store_manager,admin' %}
+    <li class="menu-label">Suppliers</li>
+
+    <li>
+        <a href="{% url 'supplier_list' %}"
+           class="{% if 'supplier' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-truck"></i>
+            Suppliers
+        </a>
+    </li>
+
+    <li>
+        <a href="{% url 'delivery_list' %}"
+           class="{% if 'delivery' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-dolly"></i>
+            Deliveries
+        </a>
+    </li>
+    {% endif %}
+
+    <!-- Credit accounts — admin only -->
+    {% if request.user.profile.role == 'admin' %}
+    <li>
+        <a href="{% url 'credit_list' %}"
+           class="{% if 'credit' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            Credit Accounts
+        </a>
+    </li>
+    {% endif %}
+
+    <!-- Deposit scheme — admin + sales attendant only -->
+    {% if request.user.profile.role == 'admin' or request.user.profile.role == 'sales_attendant' %}
+    <li class="menu-label">Deposit Scheme</li>
+
+    <li>
+        <a href="{% url 'customer_list' %}"
+           class="{% if 'customer' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-users"></i>
+            Customers
+        </a>
+    </li>
+    {% endif %}
+
+    <!-- System — everyone -->
+    <li class="menu-label">System</li>
+
+    <li>
+        <a href="{% url 'notification_list' %}"
+           class="{% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-bell"></i>
+            Notifications
+            {% if notif_unread_count > 0 %}
+            <span class="badge bg-danger ms-auto">
+                {{ notif_unread_count }}
+            </span>
             {% endif %}
+        </a>
+    </li>
 
-            <li>
-                <a href="{% url 'deposit_report' %}"
-                   class="{% if request.resolver_match.url_name == 'deposit_report' %}active{% endif %}">
-                    <i class="fa-solid fa-piggy-bank"></i>
-                    Deposit Report
-                </a>
-            </li>
+    <!-- Admin only -->
+    {% if request.user.profile.role == 'admin' %}
+    <li class="menu-label">Admin</li>
 
-            <!-- Suppliers -->
-            <li class="menu-label">Suppliers</li>
+    <li>
+        <a href="{% url 'user_list' %}"
+           class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fa-solid fa-user-gear"></i>
+            Staff Accounts
+        </a>
+    </li>
+    {% endif %}
 
-            <li>
-                <a href="{% url 'supplier_list' %}"
-                   class="{% if 'supplier' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-truck"></i>
-                    Suppliers
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'delivery_list' %}"
-                   class="{% if 'delivery' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-dolly"></i>
-                    Deliveries
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'credit_list' %}"
-                   class="{% if 'credit' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    Credit Accounts
-                </a>
-            </li>
-
-            <!-- Deposit Scheme -->
-            <li class="menu-label">Deposit Scheme</li>
-
-            <li>
-                <a href="{% url 'customer_list' %}"
-                   class="{% if 'customer' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-users"></i>
-                    Customers
-                </a>
-            </li>
-
-            <!-- Notifications -->
-            <li class="menu-label">System</li>
-
-            <li>
-                <a href="{% url 'notification_list' %}"
-                   class="{% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
-
-                    <i class="fa-solid fa-bell"></i>
-                    Notifications
-
-                    {% if notif_unread_count > 0 %}
-                    <span class="badge bg-danger ms-auto">
-                        {{ notif_unread_count }}
-                    </span>
-                    {% endif %}
-                </a>
-            </li>
-
-            <!-- Admin -->
-            {% if request.user.profile.role == 'admin' %}
-
-            <li class="menu-label">Admin</li>
-
-            <li>
-                <a href="{% url 'user_list' %}"
-                   class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fa-solid fa-user-gear"></i>
-                    Staff Accounts
-                </a>
-            </li>
-
-            {% endif %}
-
-        </ul>
+</ul>
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
+          <span>
+            <i class="fa-solid fa-circle-user me-1"></i>
+            {{ request.user.get_full_name }}
+          </span>
 
-            <span>
-                <i class="fa-solid fa-circle-user me-1"></i>
-                {{ request.user.get_full_name }}
-            </span>
-
-            <a href="{% url 'logout' %}"
-               class="btn btn-sm btn-outline-danger mt-2 w-100">
-
-                <i class="fa-solid fa-right-from-bracket me-1"></i>
-                Logout
-
-            </a>
-
+          <a
+            href="{% url 'logout' %}"
+            class="btn btn-sm btn-outline-danger mt-2 w-100"
+          >
+            <i class="fa-solid fa-right-from-bracket me-1"></i>
+            Logout
+          </a>
         </div>
+      </nav>
 
-    </nav>
-
-    <!-- Main Content -->
-    <div id="content">
-
+      <!-- Main Content -->
+      <div id="content">
         <!-- Topbar -->
         <nav class="topbar">
+          <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary">
+            <i class="fa-solid fa-bars"></i>
+          </button>
 
-            <button id="sidebarToggle"
-                    class="btn btn-sm btn-outline-secondary">
+          <div class="topbar-right">
+            <span class="badge-role">
+              {{ request.user.profile.get_role_display }}
+            </span>
 
-                <i class="fa-solid fa-bars"></i>
+            <!-- Notification Bell -->
+            <div class="notif-wrapper">
+              <a
+                href="{% url 'notification_list' %}"
+                class="notif-bell {% if notif_unread_count > 0 %}has-unread{% endif %}"
+                title="Notifications"
+              >
+                <i class="fa-solid fa-bell"></i>
 
-            </button>
+                {% if notif_unread_count > 0 %}
+                <span class="notif-badge"> {{ notif_unread_count }} </span>
+                {% endif %}
+              </a>
 
-            <div class="topbar-right">
+              {% if notif_recent %}
 
-                <span class="badge-role">
-                    {{ request.user.profile.get_role_display }}
-                </span>
+              <div class="notif-dropdown">
+                <div class="notif-dropdown-header">
+                  <span>Notifications</span>
 
-                <!-- Notification Bell -->
-                <div class="notif-wrapper">
+                  <form method="post" action="{% url 'mark_all_read' %}">
+                    {% csrf_token %}
 
-                    <a href="{% url 'notification_list' %}"
-                       class="notif-bell {% if notif_unread_count > 0 %}has-unread{% endif %}"
-                       title="Notifications">
-
-                        <i class="fa-solid fa-bell"></i>
-
-                        {% if notif_unread_count > 0 %}
-                        <span class="notif-badge">
-                            {{ notif_unread_count }}
-                        </span>
-                        {% endif %}
-
-                    </a>
-
-                    {% if notif_recent %}
-
-                    <div class="notif-dropdown">
-
-                        <div class="notif-dropdown-header">
-
-                            <span>Notifications</span>
-
-                            <form method="post"
-                                  action="{% url 'mark_all_read' %}">
-
-                                {% csrf_token %}
-
-                                <button class="btn-link-sm">
-                                    Mark all read
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                        {% for notif in notif_recent %}
-
-                        <a href="{% url 'notification_read' notif.pk %}"
-                           class="notif-item notif-{{ notif.level }}">
-
-                            <i class="fa-solid
-                                {% if notif.level == 'danger' %}
-                                    fa-circle-exclamation
-                                {% elif notif.level == 'warning' %}
-                                    fa-triangle-exclamation
-                                {% elif notif.level == 'success' %}
-                                    fa-circle-check
-                                {% else %}
-                                    fa-circle-info
-                                {% endif %} me-2">
-                            </i>
-
-                            <div>
-
-                                <div class="notif-item-title">
-                                    {{ notif.title }}
-                                </div>
-
-                                <div class="notif-item-time">
-                                    {{ notif.created_at|timesince }} ago
-                                </div>
-
-                            </div>
-
-                        </a>
-
-                        {% endfor %}
-
-                        <a href="{% url 'notification_list' %}"
-                           class="notif-view-all">
-
-                            View all notifications
-
-                        </a>
-
-                    </div>
-
-                    {% endif %}
-
+                    <button class="btn-link-sm">Mark all read</button>
+                  </form>
                 </div>
 
-            </div>
+                {% for notif in notif_recent %}
 
+                <a
+                  href="{% url 'notification_read' notif.pk %}"
+                  class="notif-item notif-{{ notif.level }}"
+                >
+                  <i
+                    class="fa-solid {% if notif.level == 'danger' %} fa-circle-exclamation {% elif notif.level == 'warning' %} fa-triangle-exclamation {% elif notif.level == 'success' %} fa-circle-check {% else %} fa-circle-info {% endif %} me-2"
+                  >
+                  </i>
+
+                  <div>
+                    <div class="notif-item-title">{{ notif.title }}</div>
+
+                    <div class="notif-item-time">
+                      {{ notif.created_at|timesince }} ago
+                    </div>
+                  </div>
+                </a>
+
+                {% endfor %}
+
+                <a href="{% url 'notification_list' %}" class="notif-view-all">
+                  View all notifications
+                </a>
+              </div>
+
+              {% endif %}
+            </div>
+          </div>
         </nav>
 
         <!-- Messages -->
         {% if messages %}
 
         <div class="px-4 pt-3">
+          {% for message in messages %}
 
-            {% for message in messages %}
+          <div
+            class="alert alert-{{ message.tags }} alert-dismissible fade show"
+            role="alert"
+          >
+            {{ message }}
 
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                 role="alert">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
 
-                {{ message }}
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert">
-                </button>
-
-            </div>
-
-            {% endfor %}
-
+          {% endfor %}
         </div>
 
         {% endif %}
 
         <!-- Page Content -->
         <div class="page-content">
-
-            {% block content %}
+            {% block content %} 
             {% endblock %}
-
         </div>
 
         <div class="logo-line"></div>
-
+      </div>
     </div>
 
-</div>
 
-{% else %}
+    <!-- Authentication Pages -->
+    <div class="auth-wrapper">
+      <!-- Messages -->
+      {% if messages %}
 
-<!-- Authentication Pages -->
-<div class="auth-wrapper">
-
-    <!-- Messages -->
-    {% if messages %}
-
-    <div class="position-fixed top-0 start-50 translate-middle-x mt-3"
-         style="z-index:9999; min-width:320px;">
-
+      <div
+        class="position-fixed top-0 start-50 translate-middle-x mt-3"
+        style="z-index: 9999; min-width: 320px">
         {% for message in messages %}
 
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow"
-             role="alert">
+        <div
+          class="alert alert-{{ message.tags }} alert-dismissible fade show shadow"role="alert">
+          {{ message }}
 
-            {{ message }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
+          <button type="button"class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
         {% endfor %}
+      </div>
 
+      {% endif %}
+      {% endif %}
+
+      <!-- Auth Content -->
+      {% block auth_content %}
+       {% endblock %}
     </div>
 
-    {% endif %}
 
-    <!-- Auth Content -->
-    {% block auth_content %}
-    {% endblock %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-</div>
+    <!-- Sidebar Toggle -->
+    <script>
+      const toggle = document.getElementById("sidebarToggle");
 
-{% endif %}
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          document.getElementById("sidebar").classList.toggle("collapsed");
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Sidebar Toggle -->
-<script>
-
-    const toggle = document.getElementById('sidebarToggle');
-
-    if (toggle) {
-
-        toggle.addEventListener('click', () => {
-
-            document.getElementById('sidebar')
-                    .classList.toggle('collapsed');
-
-            document.getElementById('content')
-                    .classList.toggle('expanded');
-
+          document.getElementById("content").classList.toggle("expanded");
         });
-
-    }
-
-</script>
-
-</body>
+      }
+    </script>
+  </body>
 </html>

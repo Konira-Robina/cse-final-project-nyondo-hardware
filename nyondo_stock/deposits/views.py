@@ -94,6 +94,8 @@ def deposit_record(request, customer_pk):
             deposit = form.save(commit=False)
             deposit.customer = customer
             deposit.save()
+            notify_new_deposit(deposit)
+            notify_deposit_ready(deposit)
 
             messages.success(
                 request,

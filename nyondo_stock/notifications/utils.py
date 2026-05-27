@@ -108,24 +108,32 @@ def notify_new_deposit(deposit):
         target_role='admin',
     )
 
-
 def notify_deposit_ready(deposit):
     """
-    Triggered when total deposits reach or exceed the product price.
-    Tells the attendant the customer can pick up goods.
+    Only fires when the customer has fully paid
+    the target amount for their specific deposit.
     """
     customer = deposit.customer
     product = deposit.product
-    total = customer.total_deposited()
 
-    if total >= product.retail_price:
+    # Use the deposit's target amount — not just the product unit price
+    total_paid_for_product = sum(
+        d.amount_paid for d in customer.deposits.filter(
+            product=product
+        )
+    )
+
+    # Only notify when fully paid
+    if total_paid_for_product >= deposit.target_amount:
         Notification.notify(
             category='deposit_ready',
             title=f'Ready for pickup — {customer.full_name}',
             message=(
-                f'{customer.full_name} has deposited enough '
-                f'(UGX {total:,.0f}) to collect {product.name}. '
-                f'Please prepare the goods.'
+                f'{customer.full_name} has fully paid '
+                f'UGX {total_paid_for_product:,.0f} for '
+                f'{deposit.target_quantity} {product.get_unit_display()}(s) '
+                f'of {product.name}. '
+                f'Please prepare the goods for collection.'
             ),
             level='warning',
             link=f'/deposits/{customer.pk}/',

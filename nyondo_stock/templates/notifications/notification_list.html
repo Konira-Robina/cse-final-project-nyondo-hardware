@@ -19,7 +19,7 @@
         {% if unread_count > 0 %}
         <form method="post" action="{% url 'mark_all_read' %}">
             {% csrf_token %}
-            <button class="btn btn-outline-primary btn-sm">
+            <button class="btn btn-outline-primary btn-sm" style="color: black;">
                 <i class="fa-solid fa-check-double me-1"></i> Mark All Read
             </button>
         </form>

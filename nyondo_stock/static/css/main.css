@@ -1,13 +1,42 @@
 /* logo styles */
 
-    .logo-body{
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.91rem;
+    background: var(--soft);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.shell {
+    display: flex;
+    min-height: 100vh;
+    align-items: flex-start;
+    background: var(--soft);
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0;
+    background: var(--soft);
+}
+.page {
+    padding: 1.5rem;
+    flex: 1;
+    background: var(--soft); /* add this */
+}
+    /* .logo-body{
         background:#0d1b2a;
         display:flex;
         justify-content:center;
         align-items:center;
         height:23vh;
         margin:0;
-    }
+    } */ */
 
     .logo{
         display:flex;
@@ -70,7 +99,6 @@
     }
 
    /* NYONDO HARDWARE — Design System */  
-
 :root {
     --primary:        #FEF3C7;
     --primary-dark:   #fef3c7;
@@ -93,21 +121,10 @@
     --danger:         #EF4444;
     --info:           #3B82F6;
     --warning:        #FEF3C7;
-}
+} 
 
 /* ── Reset & Base ───────────────────────── */
 * { box-sizing: border-box; }
-
-body {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 0.92rem;
-    background: var(--neutral);
-    color: var(--text-main);
-    background-color: #1E40AF;
-}
-input{
-    background-color: rgb(120, 109, 109);
-} 
 
 /* ── Layout ─────────────────────────────── */
 .wrapper {
@@ -216,9 +233,9 @@ input{
 }
 
 
-/* =========================
-   MENU
-========================= */
+
+   /* MENU */
+
 
 .sidebar-menu{
 
@@ -479,9 +496,8 @@ input{
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+   /* MOBILE */
+
 
 @media(max-width:991px){
 
@@ -506,7 +522,7 @@ input{
 
 
 
-/* ── Main Content ───────────────────────── */
+/*  Main Content  */
 #content {
     flex: 1;
     display: flex;
@@ -516,7 +532,7 @@ input{
     min-width: 0;
 }
 
-/* ── Topbar ─────────────────────────────── */
+/* Topbar  */
 .topbar {
     height: var(--topbar-height);
     background: var(--white);
@@ -547,10 +563,10 @@ input{
     white-space: nowrap;
 }
 
-/* ── Page Content ───────────────────────── */
+/*  Page Content */
 .page-content { padding: 1.5rem; }
 
-/* ── Cards ──────────────────────────────── */
+/* Cards */
 .card {
     border: 1px solid var(--neutral-dark);
     border-radius: 10px;
@@ -919,30 +935,31 @@ input{
     color: #92400E;
 }
 
-/* ── Auth Page ──────────────────────────── */
-.auth-wrapper {
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--dark) 0%, var(--dark-mid) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+ /* Auth Page */
+
 
 .auth-card {
-    background: var(--white);
+    background: #FEF3C7;
     border-radius: 14px;
     padding: 2.5rem;
     width: 100%;
     max-width: 420px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    margin-left: 450px;
+    margin-top: 80px;
 }
 
 .auth-logo {
     color: var(--primary);
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 800;
     text-align: center;
     margin-bottom: 0.25rem;
+    
+}
+.auth-logo i{
+   color: darkblue;
+  
 }
 
 .auth-subtitle {
@@ -1175,3 +1192,25 @@ input{
     padding: 5px;
 }
 
+/* ── Auto dismiss alerts ────────────────── */
+@keyframes fade-out {
+    0%   { opacity: 1; transform: translateY(0); }
+    80%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.alert {
+    animation: fade-out 4s ease forwards;
+}
+@keyframes fade-out {
+    0%   { opacity: 1; transform: translateY(0); max-height: 100px; }
+    75%  { opacity: 1; transform: translateY(0); max-height: 100px; }
+    95%  { opacity: 0; transform: translateY(-10px); max-height: 100px; }
+    100% { opacity: 0; transform: translateY(-10px); max-height: 0; 
+           padding: 0; margin: 0; border: none; }
+}
+
+.alert {
+    animation: fade-out 2s ease forwards;
+    overflow: hidden;
+}
