@@ -17,7 +17,7 @@ NyondoStock{% endblock %} {% block content %}
     {% if request.user.profile.role == 'admin' %}
     <a
       href="{% url 'customer_edit' customer.pk %}"
-      class="btn btn-outline-primary"
+      class="btn btn-outline-primary" style="color: black;"
     >
       <i class="fa-solid fa-pen me-1"></i> Edit
     </a>
@@ -84,63 +84,88 @@ NyondoStock{% endblock %} {% block content %}
           <i class="fa-solid fa-list me-2"></i> Deposit Records
         </div>
         <div class="card-body p-0">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr>
-                <th>Receipt #</th>
-                <th>Product</th>
-                <th>Amount (UGX)</th>
-                <th>Date</th>
-                <th>Pickup</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for deposit in deposits %}
-              <tr>
-                <td>
-                  <span class="badge bg-secondary">
+        <table class="table table-hover mb-0">
+    <thead>
+        <tr>
+            <th>Receipt #</th>
+            <th>Product</th>
+            <th>Target Qty</th>
+            <th>Target Amount</th>
+            <th>Amount Paid</th>
+            <th>Balance</th>
+            <th>Progress</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for deposit in deposits %}
+        <tr>
+            <td>
+                <span class="tag navy">
                     {{ deposit.receipt_number }}
-                  </span>
-                </td>
-                <td>{{ deposit.product.name }}</td>
-                <td>{{ deposit.amount_paid|floatformat:0 }}</td>
-                <td>{{ deposit.payment_date|date:"d M Y" }}</td>
-                <td>
-                  {% if deposit.pickups.exists %}
-                  <span class="badge bg-success">Picked Up</span>
-                  {% else %}
-                  <span class="badge bg-warning text-dark">Pending</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <a
-                      href="{% url 'deposit_receipt' deposit.pk %}"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      <i class="fa-solid fa-receipt"></i>
+                </span>
+            </td>
+            <td>{{ deposit.product.name }}</td>
+            <td>
+                {{ deposit.target_quantity }}
+                {{ deposit.product.get_unit_display }}(s)
+            </td>
+            <td>{{ deposit.target_amount|floatformat:0 }}</td>
+            <td style="color:var(--green);">
+                {{ deposit.amount_paid|floatformat:0 }}
+            </td>
+            <td style="color:var(--red);">
+                {{ deposit.balance_remaining|floatformat:0 }}
+            </td>
+            <td style="min-width:100px;">
+                <div style="height:6px; background:var(--soft-dark);
+                            border-radius:999px; overflow:hidden;">
+                    <div style="height:100%;
+                                width:{{ deposit.progress_percent }}%;
+                                background:var(--navy);
+                                border-radius:999px;">
+                    </div>
+                </div>
+                <small class="text-muted">
+                    {{ deposit.progress_percent }}%
+                </small>
+            </td>
+            <td>
+                {% if deposit.pickups.exists %}
+                <span class="tag green">Picked Up</span>
+                {% elif deposit.is_complete %}
+                <span class="tag yellow">Ready</span>
+                {% else %}
+                <span class="tag navy">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                <div class="d-flex gap-1">
+                    <a href="{% url 'deposit_receipt' deposit.pk %}"
+                       class="btn btn-sm btn-outline-secondary"
+                       title="Receipt">
+                        <i class="fa-solid fa-receipt"></i>
                     </a>
-                    {% if not deposit.pickups.exists %}
-                    <a
-                      href="{% url 'goods_pickup' deposit.pk %}"
-                      class="btn btn-sm btn-outline-success"
-                    >
-                      <i class="fa-solid fa-box-open"></i>
+                    {% if deposit.is_complete and not deposit.pickups.exists %}
+                    <a href="{% url 'goods_pickup' deposit.pk %}"
+                       class="btn btn-sm btn-outline-success"
+                       title="Process Pickup">
+                        <i class="fa-solid fa-box-open"></i>
                     </a>
                     {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="6" class="text-center text-muted py-4">
-                  No deposits recorded yet.
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="9" class="text-center text-muted py-4">
+                No deposits recorded yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
         </div>
       </div>
     </div>

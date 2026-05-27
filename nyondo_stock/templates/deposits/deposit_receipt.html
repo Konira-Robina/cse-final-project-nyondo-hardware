@@ -2,20 +2,22 @@
 {% block title %}Deposit Receipt — {{ deposit.receipt_number }}{% endblock %}
 
 {% block content %}
-<div class="receipt-card mt-3">
-    <div class="receipt-header">
+<div class="receipt-wrap mt-3">
+    <div class="receipt-top">
         <h5 class="fw-bold mb-0">
-            <i class="fa-solid fa-warehouse me-2 text-warning"></i>
+            <i class="fa-solid fa-warehouse me-2"
+               style="color:var(--navy);"></i>
             NYONDO General Hardware LTD
         </h5>
         <small class="text-muted">Deposit Scheme — Temporary Receipt</small>
         <div class="mt-2">
-            <span class="badge bg-secondary fs-6">
+            <span class="tag navy fs-6">
                 {{ deposit.receipt_number }}
             </span>
         </div>
     </div>
 
+    <!-- Customer info -->
     <div class="row my-3">
         <div class="col-6">
             <small class="text-muted">Customer</small>
@@ -35,32 +37,84 @@
         </div>
     </div>
 
-    <div class="border-top border-bottom py-3 my-3">
+    <!-- Deposit details -->
+    <div class="border-top border-bottom py-3 my-3 " style="margin-right: 100px;">
         <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">Product</span>
             <strong>{{ deposit.product.name }}</strong>
         </div>
-        <div class="d-flex justify-content-between">
-            <span class="text-muted fw-bold">Amount Deposited</span>
-            <strong class="fs-5 text-warning">UGX {{ deposit.amount_paid|floatformat:0 }}</strong>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Target Quantity</span>
+            <strong>
+                {{ deposit.target_quantity }}
+                {{ deposit.product.get_unit_display }}(s)
+            </strong>
         </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Unit Price</span>
+            <span>UGX {{ deposit.product.retail_price|floatformat:0 }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Target Amount</span>
+            <strong>UGX {{ deposit.target_amount|floatformat:0 }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Amount Paid Today</span>
+            <strong style="color:var(--green);">
+                UGX {{ deposit.amount_paid|floatformat:0 }}
+            </strong>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="text-muted fw-bold">Balance Remaining</span>
+            <strong style="color:var(--red);">
+                UGX {{ deposit.balance_remaining|floatformat:0 }}
+            </strong>
+        </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1" style="margin-right: 100px;">
+            <small class="text-muted">Payment Progress</small>
+            <small class="fw-bold">{{ deposit.progress_percent }}%</small>
+        </div>
+        <div style="height:8px; background:var(--soft-dark);
+                    border-radius:999px; overflow:hidden;">
+            <!-- <div style="height:100%; {{ deposit.progress_percent }}%;
+                        background:var(--navy); border-radius:999px;
+                        transition: width 0.3s ease;">
+            </div> -->
+        </div>
+        {% if deposit.is_complete %}
+        <div class="alert alert-success py-2 mt-2 text-center">
+            <i class="fa-solid fa-circle-check me-1"></i>
+            Payment complete — ready for pickup!
+        </div>
+        {% endif %}
     </div>
 
     {% if deposit.notes %}
     <p class="text-muted small">Notes: {{ deposit.notes }}</p>
     {% endif %}
 
-    <div class="receipt-footer text-muted small">
+    <div class="receipt-bottom text-muted small">
         <p class="mb-0">This is a temporary deposit receipt.</p>
-        <p class="mb-0">Goods will be issued based on amount paid on collection day.</p>
+        <p class="mb-0">
+            Goods will be released when full payment of
+            UGX {{ deposit.target_amount|floatformat:0 }} is complete.
+        </p>
     </div>
 </div>
-
-<div class="d-flex justify-content-center gap-3 mt-3">
-    <a href="{% url 'customer_detail' deposit.customer.pk %}" class="btn btn-outline-secondary">
+<div class="d-flex justify-content-center gap-3 mt-3 no-print">
+    <a href="{% url 'deposit_receipt_print' deposit.pk %}"
+       target="_blank">
+        <i class="fa-solid fa-print me-2"></i> Print Receipt
+    </a>
+    <a href="{% url 'customer_detail' deposit.customer.pk %}"
+       class="btn-soft" style="background-color: #FEF3C7; padding: 8px; border-radius: 5px;">
         <i class="fa-solid fa-user me-1"></i> Back to Customer
     </a>
-    <a href="{% url 'customer_list' %}" class="btn btn-primary">
+    <a href="{% url 'customer_list' %}" class="btn-main"  style="background-color: #FEF3C7; padding: 8px; border-radius: 5px;">
         <i class="fa-solid fa-users me-1"></i> All Customers
     </a>
 </div>

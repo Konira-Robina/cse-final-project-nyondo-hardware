@@ -28,7 +28,9 @@ class DepositCustomerForm(forms.ModelForm):
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 2
+            }),
             'employer': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Employer / Organisation'
@@ -37,8 +39,10 @@ class DepositCustomerForm(forms.ModelForm):
 
     def clean_nin(self):
         nin = self.cleaned_data.get('nin', '').upper()
-        # Check uniqueness manually to give a friendly message
-        if DepositCustomer.objects.filter(nin=nin).exists():
+        qs = DepositCustomer.objects.filter(nin=nin)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
             raise forms.ValidationError(
                 "A customer with this NIN is already registered."
             )
@@ -48,17 +52,52 @@ class DepositCustomerForm(forms.ModelForm):
 class DepositRecordForm(forms.ModelForm):
     class Meta:
         model = DepositRecord
-        fields = ['product', 'amount_paid', 'notes']
+        fields = ['product', 'target_quantity', 'amount_paid', 'notes']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-select'}),
-            'amount_paid': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': 'UGX'
+            'target_quantity': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g. 50',
+                'min': 1,
             }),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'amount_paid': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'UGX'
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 2
+            }),
         }
+
+    def clean_target_quantity(self):
+        qty = self.cleaned_data.get('target_quantity')
+        if qty and qty <= 0:
+            raise forms.ValidationError(
+                "Target quantity must be greater than zero."
+            )
+        return qty
 
     def clean_amount_paid(self):
         amount = self.cleaned_data.get('amount_paid')
-        if amount <= 0:
-            raise forms.ValidationError("Amount must be greater than zero.")
+        if amount and amount <= 0:
+            raise forms.ValidationError(
+                "Amount must be greater than zero."
+            )
         return amount
+
+    def clean(self):
+        cleaned_data = super().clean()
+        product = cleaned_data.get('product')
+        target_quantity = cleaned_data.get('target_quantity')
+        amount_paid = cleaned_data.get('amount_paid')
+
+        if product and target_quantity:
+            target_amount = product.retail_price * target_quantity
+            if amount_paid and amount_paid > target_amount:
+                raise forms.ValidationError(
+                    f"Amount paid (UGX {amount_paid:,.0f}) cannot exceed "
+                    f"the target amount (UGX {target_amount:,.0f}) for "
+                    f"{target_quantity} {product.get_unit_display()}(s) "
+                    f"of {product.name}."
+                )
+        return cleaned_data

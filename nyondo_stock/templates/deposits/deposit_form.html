@@ -3,57 +3,107 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            
             <h4 class="fw-bold mb-0">
-                <i class="fa-solid fa-money-bill-wave me-2 text-warning"></i> Record Deposit
+                <i class="fa-solid fa-money-bill-wave me-2"
+                   style="color:var(--navy);"></i>
+                Record Deposit
             </h4>
-            <a href="{% url 'customer_detail' customer.pk %}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-arrow-left me-1"></i> Back
-            </a>
+        
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body d-flex align-items-center gap-3">
-                <i class="fa-solid fa-user-circle fa-2x text-warning"></i>
+        <!-- Customer info -->
+        <div class="box mb-3">
+            <div class="box-body d-flex align-items-center gap-3">
+                <div style="width:44px; height:44px; border-radius:10px;
+                            background:var(--navy); color:var(--cream);
+                            display:flex; align-items:center;
+                            justify-content:center; font-size:1.1rem;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
                 <div>
                     <div class="fw-bold">{{ customer.full_name }}</div>
-                    <small class="text-muted">{{ customer.nin }} · {{ customer.phone }}</small>
+                    <small class="text-muted">
+                        {{ customer.nin }} · {{ customer.phone }}
+                    </small>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
+        <div class="box">
+            <div class="box-head">
                 <i class="fa-solid fa-circle-info me-2"></i>
-                Only deposit-eligible products shown (cement, iron sheets, bars)
+                Only deposit-eligible products shown
             </div>
-            <div class="card-body">
+            <div class="box-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
+
                     <div class="mb-3">
-                        <label class="form-label">Product <span class="text-danger">*</span></label>
+                        <label class="form-label">
+                            Product <span class="text-danger">*</span>
+                        </label>
                         {{ form.product }}
                         {% if form.product.errors %}
-                        <div class="text-danger small mt-1">{{ form.product.errors.0 }}</div>
+                        <div class="text-danger small mt-1">
+                            {{ form.product.errors.0 }}
+                        </div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Amount Paid (UGX) <span class="text-danger">*</span></label>
-                        {{ form.amount_paid }}
-                        {% if form.amount_paid.errors %}
-                        <div class="text-danger small mt-1">{{ form.amount_paid.errors.0 }}</div>
+                        <label class="form-label">
+                            Target Quantity
+                            <span class="text-danger">*</span>
+                            <small class="text-muted ms-1">
+                                How many units does the customer want?
+                            </small>
+                        </label>
+                        {{ form.target_quantity }}
+                        {% if form.target_quantity.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.target_quantity.errors.0 }}
+                        </div>
                         {% endif %}
                         <div class="form-text">
-                            A temporary receipt will be generated immediately.
+                            Target amount will be calculated automatically
+                            based on product retail price × quantity.
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Amount Paid Today (UGX)
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form.amount_paid }}
+                        {% if form.amount_paid.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.amount_paid.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Cannot exceed the target amount for the
+                            selected product and quantity.
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <label class="form-label">Notes</label>
                         {{ form.notes }}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fa-solid fa-receipt me-2"></i> Record & Generate Receipt
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn-main w-100">
+                        <i class="fa-solid fa-receipt me-2"></i>
+                        Record & Generate Receipt
                     </button>
                 </form>
             </div>

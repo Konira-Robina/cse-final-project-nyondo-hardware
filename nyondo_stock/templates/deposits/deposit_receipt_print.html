@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Receipt — {{ deposit.receipt_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #fff;
+            color: #000;
+            padding: 10px;
+        }
+
+        .wrap {
+            max-width: 380px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .top {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .top h2 {
+            font-size: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .top p {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .receipt-num {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 8px 0;
+            border: 1px dashed #000;
+            padding: 4px;
+        }
+
+        .receipt-type {
+            text-align: center;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .row.bold { font-weight: bold; }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin: 8px 0 4px;
+        }
+
+        .progress-bar-wrap {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #060B29;
+            border-radius: 4px;
+        }
+
+        .complete-banner {
+            text-align: center;
+            border: 1px solid #000;
+            padding: 4px;
+            margin: 8px 0;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 8px;
+            font-size: 10px;
+            color: #555;
+        }
+
+        .print-btn {
+            display: block;
+            margin: 15px auto;
+            padding: 8px 30px;
+            background: #060B29;
+            color: #FEF3C7;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        @media print {
+            .print-btn { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+     <a href="{% url 'cart' %}" style=" margin-left: 10px; color:white; background-color: #000; padding: 10px; margin-top: 10px;">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back
+        </a>
+<div> 
+<div class="wrap">
+ 
+    <!-- Header -->
+    <div class="top">
+        <h2>NYONDO General Hardware Ltd</h2>
+        <p>Nansana, Wakiso District, Uganda</p>
+        <p>Tel: +256 700 000 000</p>
+    </div>
+
+    <!-- Receipt type and number -->
+    <div class="receipt-type">Deposit Scheme — Temporary Receipt</div>
+    <div class="receipt-num">{{ deposit.receipt_number }}</div>
+
+    <!-- Customer details -->
+    <div class="section-title">Customer Details</div>
+    <div class="row">
+        <span>Name:</span>
+        <span>{{ deposit.customer.full_name }}</span>
+    </div>
+    <div class="row">
+        <span>NIN:</span>
+        <span>{{ deposit.customer.nin }}</span>
+    </div>
+    <div class="row">
+        <span>Phone:</span>
+        <span>{{ deposit.customer.phone }}</span>
+    </div>
+    {% if deposit.customer.employer %}
+    <div class="row">
+        <span>Employer:</span>
+        <span>{{ deposit.customer.employer }}</span>
+    </div>
+    {% endif %}
+    <div class="row">
+        <span>Date:</span>
+        <span>{{ deposit.payment_date|date:"d/m/Y H:i" }}</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Product details -->
+    <div class="section-title">Deposit Details</div>
+    <div class="row">
+        <span>Product:</span>
+        <span>{{ deposit.product.name }}</span>
+    </div>
+    <div class="row">
+        <span>Target Quantity:</span>
+        <span>
+            {{ deposit.target_quantity }}
+            {{ deposit.product.get_unit_display }}(s)
+        </span>
+    </div>
+    <div class="row">
+        <span>Unit Price:</span>
+        <span>UGX {{ deposit.product.retail_price|floatformat:0 }}</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Payment summary -->
+    <div class="section-title">Payment Summary</div>
+    <div class="row">
+        <span>Target Amount:</span>
+        <span>UGX {{ deposit.target_amount|floatformat:0 }}</span>
+    </div>
+    <div class="row">
+        <span>Amount Paid Today:</span>
+        <span>UGX {{ deposit.amount_paid|floatformat:0 }}</span>
+    </div>
+    <div class="row bold">
+        <span>Balance Remaining:</span>
+        <span>UGX {{ deposit.balance_remaining|floatformat:0 }}</span>
+    </div>
+
+    <!-- Progress -->
+    <div class="divider"></div>
+    <div class="row">
+        <span>Payment Progress:</span>
+        <span>{{ deposit.progress_percent }}%</span>
+    </div>
+    <div class="progress-bar-wrap">
+        <div class="progress-fill"
+             style="width:{{ deposit.progress_percent }}%;">
+        </div>
+    </div>
+
+    {% if deposit.is_complete %}
+    <div class="complete-banner">
+        ✓ PAYMENT COMPLETE — READY FOR PICKUP
+    </div>
+    {% endif %}
+
+    {% if deposit.notes %}
+    <div class="divider"></div>
+    <div class="row">
+        <span>Notes:</span>
+        <span>{{ deposit.notes }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>This is a temporary deposit receipt.</p>
+        <p>
+            Goods will be released upon full payment of
+            UGX {{ deposit.target_amount|floatformat:0 }}.
+        </p>
+        <p style="margin-top:6px; font-weight:bold;">
+            ** Please keep this receipt safe **
+        </p>
+    </div>
+
+</div>
+
+<!-- Print button — hidden when printing -->
+<button class="print-btn" onclick="window.print()">
+    Print Receipt
+</button>
+</div>
+</body>
+</html>

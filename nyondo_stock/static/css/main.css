@@ -69,10 +69,7 @@
         border-radius:20px;
     }
 
-/* ══════════════════════════════════════════
-   NYONDO STOCK — Design System
-   Colors: Amber #F59E0B | Steel #1E2A3A | Off White #F8F9FA
-   ══════════════════════════════════════════ */
+   /* NYONDO HARDWARE — Design System */  
 
 :root {
     --primary:        #FEF3C7;
@@ -106,7 +103,11 @@ body {
     font-size: 0.92rem;
     background: var(--neutral);
     color: var(--text-main);
+    background-color: #1E40AF;
 }
+input{
+    background-color: rgb(120, 109, 109);
+} 
 
 /* ── Layout ─────────────────────────────── */
 .wrapper {
