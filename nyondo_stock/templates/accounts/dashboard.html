@@ -85,17 +85,17 @@
                 <i class="fa-solid fa-bolt me-2"></i> Quick Actions
             </div>
             <div class="card-body d-flex flex-column gap-2">
-                <a href="{% url 'cart' %}" class="btn btn-copper-primary py-2">
+                <a href="{% url 'cart' %}" class="btn btn-copper-primary py-2"  style="background-color: #c58a3d;;">
                     <i class="fa-solid fa-cart-plus me-2"></i> New Sale
                 </a>
-                <a href="{% url 'delivery_create' %}" class="btn btn-copper-outline py-2">
+                <a href="{% url 'delivery_create' %}" class="btn btn-copper-outline py-2"  style="background-color: #c58a3d;;">
                     <i class="fa-solid fa-dolly me-2"></i> Record Delivery
                 </a>
-                <a href="{% url 'customer_register' %}" class="btn btn-copper-outline py-2">
+                <a href="{% url 'customer_register' %}" class="btn btn-copper-outline py-2"  style="background-color: #c58a3d;;">
                     <i class="fa-solid fa-user-plus me-2"></i> Register Deposit Customer
                 </a>
                 {% if request.user.profile.role == 'admin' %}
-                <a href="{% url 'register_user' %}" class="btn btn-copper-outline py-2">
+                <a href="{% url 'register_user' %}" class="btn btn-copper-outline py-2"  style="background-color: #c58a3d;;">
                     <i class="fa-solid fa-user-gear me-2"></i> Add Staff Account
                 </a>
                 {% endif %}

@@ -1,33 +1,25 @@
 {% extends 'base.html' %} {% block title %}{{ customer.full_name }} —
 NyondoStock{% endblock %} {% block content %}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h4 class="fw-bold mb-0">
-    <i class="fa-solid fa-user me-2 text-warning"></i>
+    <i class="fa-solid fa-user me-2"></i>
     {{ customer.full_name }} {% if not customer.is_active %}
     <span class="badge bg-secondary ms-2">Inactive</span>
     {% endif %}
   </h4>
   <div class="d-flex gap-2">
-    <a
-      href="{% url 'deposit_record' customer.pk %}"
-      class="btn btn-primary {% if not customer.is_active %}disabled{% endif %}"
-    >
+    <a href="{% url 'deposit_record' customer.pk %}"
+      class="btn btn-primary {% if not customer.is_active %}disabled{% endif %}">
       <i class="fa-solid fa-plus me-1"></i> Record Deposit
     </a>
     {% if request.user.profile.role == 'admin' %}
-    <a
-      href="{% url 'customer_edit' customer.pk %}"
-      class="btn btn-outline-primary" style="color: black;"
-    >
+    <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-outline-primary">
       <i class="fa-solid fa-pen me-1"></i> Edit
     </a>
-    <a
-      href="{% url 'customer_deactivate' customer.pk %}"
-      class="btn {% if customer.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
-    >
-      <i
-        class="fa-solid {% if customer.is_active %}fa-user-slash{% else %}fa-user-check{% endif %} me-1"
-      ></i>
+    <a href="{% url 'customer_deactivate' customer.pk %}"
+      class="btn {% if customer.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+      <i class="fa-solid {% if customer.is_active %}fa-user-slash{% else %}fa-user-check{% endif %} me-1"></i>
       {% if customer.is_active %}Deactivate{% else %}Activate{% endif %}
     </a>
     {% endif %}
@@ -38,15 +30,17 @@ NyondoStock{% endblock %} {% block content %}
 </div>
 
 <div class="row g-3">
+  <!-- ── Left column — customer info ── -->
   <div class="col-md-4">
+    <!-- Customer Info Card -->
     <div class="card mb-3">
       <div class="card-header">
-        <i class="fa-solid fa-circle-info me-2"></i> Customer Info
+        <i class="fa-solid fa-circle-info me-2"></i> Customer Information
       </div>
       <div class="card-body">
-        <table class="table table-sm table-borderless">
+        <table class="table table-sm table-borderless mb-0">
           <tr>
-            <td class="text-muted">NIN</td>
+            <td class="text-muted" style="width: 40%">NIN</td>
             <td><code>{{ customer.nin }}</code></td>
           </tr>
           <tr>
@@ -69,106 +63,114 @@ NyondoStock{% endblock %} {% block content %}
       </div>
     </div>
 
-    <div class="card border-warning">
-      <div class="card-body text-center">
-        <div class="display-6 fw-bold text-warning">
+    <!-- Total Deposited Card -->
+    <div class="card">
+      <div class="card-body text-center py-4">
+        <div class="fw-bold mb-1" style="font-size: 1.8rem; color: var(--navy, #060b29)">
           UGX {{ total_deposited|floatformat:0 }}
         </div>
-        <div class="text-muted">Total Deposited</div>
-      </div>
-    </div>
-
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-list me-2"></i> Deposit Records
-        </div>
-        <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-    <thead>
-        <tr>
-            <th>Receipt #</th>
-            <th>Product</th>
-            <th>Target Qty</th>
-            <th>Target Amount</th>
-            <th>Amount Paid</th>
-            <th>Balance</th>
-            <th>Progress</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for deposit in deposits %}
-        <tr>
-            <td>
-                <span class="tag navy">
-                    {{ deposit.receipt_number }}
-                </span>
-            </td>
-            <td>{{ deposit.product.name }}</td>
-            <td>
-                {{ deposit.target_quantity }}
-                {{ deposit.product.get_unit_display }}(s)
-            </td>
-            <td>{{ deposit.target_amount|floatformat:0 }}</td>
-            <td style="color:var(--green);">
-                {{ deposit.amount_paid|floatformat:0 }}
-            </td>
-            <td style="color:var(--red);">
-                {{ deposit.balance_remaining|floatformat:0 }}
-            </td>
-            <td style="min-width:100px;">
-                <div style="height:6px; background:var(--soft-dark);
-                            border-radius:999px; overflow:hidden;">
-                    <div style="height:100%;
-                                width:{{ deposit.progress_percent }}%;
-                                background:var(--navy);
-                                border-radius:999px;">
-                    </div>
-                </div>
-                <small class="text-muted">
-                    {{ deposit.progress_percent }}%
-                </small>
-            </td>
-            <td>
-                {% if deposit.pickups.exists %}
-                <span class="tag green">Picked Up</span>
-                {% elif deposit.is_complete %}
-                <span class="tag yellow">Ready</span>
-                {% else %}
-                <span class="tag navy">Pending</span>
-                {% endif %}
-            </td>
-            <td>
-                <div class="d-flex gap-1">
-                    <a href="{% url 'deposit_receipt' deposit.pk %}"
-                       class="btn btn-sm btn-outline-secondary"
-                       title="Receipt">
-                        <i class="fa-solid fa-receipt"></i>
-                    </a>
-                    {% if deposit.is_complete and not deposit.pickups.exists %}
-                    <a href="{% url 'goods_pickup' deposit.pk %}"
-                       class="btn btn-sm btn-outline-success"
-                       title="Process Pickup">
-                        <i class="fa-solid fa-box-open"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="9" class="text-center text-muted py-4">
-                No deposits recorded yet.
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-        </div>
+        <div class="text-muted small">Total Amount Deposited</div>
       </div>
     </div>
   </div>
-  {% endblock %}
+  <!-- ── End left column ── -->
+
+  <!-- ── Right column — deposit records ── -->
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa-solid fa-list me-2"></i> Deposit Records
+        <span class="badge bg-secondary ms-2"> {{ deposits|length }} </span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Product</th>
+                <th>Target Qty</th>
+                <th>Target (UGX)</th>
+                <th>Paid (UGX)</th>
+                <th>Balance (UGX)</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for deposit in deposits %}
+              <tr>
+                <td>
+                  <code style="font-size: 0.78rem">
+                    {{ deposit.receipt_number }}
+                  </code>
+                </td>
+                <td>{{ deposit.product.name }}</td>
+                <td>
+                  {{ deposit.target_quantity }} 
+                  {{deposit.product.get_unit_display }}(s)
+                </td>
+                <td>{{ deposit.target_amount|floatformat:0 }}</td>
+                <td class="text-success fw-semibold">
+                  {{ deposit.amount_paid|floatformat:0 }}
+                </td>
+                <td class="text-danger fw-semibold">
+                  {{ deposit.balance_remaining|floatformat:0 }}
+                </td>
+                <td style="min-width: 120px">
+                  <div style="
+                      height: 7px;
+                      background: #e9ecef;
+                      border-radius: 999px;
+                      overflow: hidden;
+                    ">
+                    <div style="height:100%; width:{{ deposit.progress_percent|default:0 }}%; background:#060B29;
+                      border-radius:999px; ransition:width 0.4s ease;">
+                  </div>
+        </div>
+        <small class="text-muted d-block mt-1">
+          {{ deposit.progress_percent|floatformat:0 }}% complete
+        </small>
+        </td>
+        <td>
+          {% if deposit.pickups.exists %}
+          <span class="badge bg-success"> Picked Up </span>
+          {% elif deposit.is_complete %}
+          <span class="badge bg-warning text-dark"> Ready </span>
+          {% else %}
+          <span class="badge bg-secondary"> Pending </span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'deposit_receipt' deposit.pk %}" class="btn btn-sm btn-outline-secondary"
+              title="View Receipt">
+              <i class="fa-solid fa-receipt"></i>
+            </a>
+            {% if deposit.is_complete and not deposit.pickups.exists %}
+            <a href="{% url 'goods_pickup' deposit.pk %}" class="btn btn-sm btn-outline-success" title="Process Pickup">
+              <i class="fa-solid fa-box-open"></i>
+            </a>
+            {% endif %}
+          </div>
+        </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-5">
+            <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+            No deposits recorded yet.
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+<!-- ── End right column ── -->
+</div>
+
+{% endblock %}

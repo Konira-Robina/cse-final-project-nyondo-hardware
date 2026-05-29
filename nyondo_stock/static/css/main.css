@@ -106,7 +106,7 @@ label, .form-label {
     letter-spacing: 0.02em;
 }
 
-input::placeholder,
+/* input::placeholder,
 textarea::placeholder {
     color: #64748b;
 }
@@ -124,7 +124,7 @@ textarea:disabled {
     background: #e2e8f0;
     color: var(--text-dark);
     font-weight: 600;
-}
+} */
 
 /* ── Left Sidebar Navigation (Unified Icon Palette) ──────────────────────── */
 #sidebar {
@@ -456,7 +456,7 @@ textarea:disabled {
 }
 
 .alert {
-    animation: fade-out 4s ease forwards;
+    animation: fade-out 1s ease forwards;
     overflow: hidden;
     border: 2px solid var(--text-dark);
     font-weight: 600;
@@ -719,4 +719,221 @@ has-auth-body,
 .auth-page-wrapper ~ header,
 .auth-page-wrapper ~ footer {
     display: none !important;
+}
+
+/* REPORTS STYLES */
+h4.fw-bold {
+    color: var(--text-dark) !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.3px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Ensure the back/print utilities stay legible without muddy grey borders */
+.btn-outline-secondary {
+    color: var(--text-dark) !important;
+    border: 2px solid var(--text-dark) !important;
+    font-weight: 700 !important;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--text-dark) !important;
+    color: var(--white) !important;
+}
+
+/* ── Filter Card Form Controls ───────────────────────────────────────────── */
+.card .card-body form {
+    background: transparent;
+}
+
+/* ── Compact Metric Stat Cards ───────────────────────────────────────────── */
+.stat-card {
+    display: flex;
+    align-items: center;
+    background: var(--card-navy); /* Dark background matching dashboard metrics */
+    border-radius: 12px;
+    padding: 0.95rem 1.15rem; /* Reduced padding for a smaller, cleaner look */
+    border: 1px solid var(--dark-border);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    height: 100%;
+    transition: transform 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Force high-visibility color parameters for labels inside navy metric nodes */
+.stat-card .stat-value {
+    color: var(--white) !important;
+    font-size: 1.4rem; /* Smaller sizing for balanced layout weight */
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1px;
+}
+
+.stat-card .stat-label {
+    color: var(--text-muted-alt) !important; /* Clear light slate text */
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* System-wide icons match the golden landing page brand color */
+.stat-card i.stat-icon {
+    font-size: 1.25rem !important;
+    color: var(--accent-gold) !important; /* Global brand accent sync */
+    background: rgba(230, 164, 80, 0.12);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── Total Financial Valuations Display Cards ────────────────────────────── */
+.card.text-center {
+    border: 2px solid var(--text-dark);
+    background-color: var(--white);
+    border-radius: 12px;
+}
+
+.card.text-center .fs-4 {
+    color: var(--text-dark) !important;
+    font-weight: 800 !important;
+    font-size: 1.45rem !important;
+    letter-spacing: -0.5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+/* Ensure the profit section has an intentional brand glow */
+.col-md-4:last-child .card.text-center {
+    background: #fffdf5; /* Subtle warmth for potential margins area */
+    border-color: var(--accent-copper);
+}
+.col-md-4:last-child .card.text-center .fs-4 {
+    color: var(--accent-copper) !important;
+}
+
+/* ── High-Contrast Stock Data Tables ─────────────────────────────────────── */
+.card-header {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.card-header i {
+    color: var(--accent-copper) !important; /* Category header icons matching your theme */
+}
+
+/* Clear product anchors matching text density guidelines */
+.table tbody td a.text-decoration-none {
+    color: var(--text-dark) !important;
+    font-weight: 700 !important;
+}
+
+.table tbody td a.text-decoration-none:hover {
+    color: var(--accent-copper) !important;
+    text-decoration: underline !important;
+}
+
+/* ── Dynamic System Print Media Rules ────────────────────────────────────── */
+@media print {
+    /* Strip body padding, background patterns, and utility containers cleanly */
+    body, .main, #content, .page-content {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Ensure metric components don't waste toner ink structures when processing */
+    .stat-card {
+        background: #ffffff !important;
+        border: 1px solid #000000 !important;
+        box-shadow: none !important;
+    }
+    
+    .stat-card .stat-value,
+    .stat-card .stat-label,
+    .stat-card i.stat-icon {
+        color: #000000 !important;
+        background: transparent !important;
+    }
+
+    .card.text-center {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+    }
+
+    .table {
+        border: 1px solid #000000 !important;
+    }
+
+    .table thead th {
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #000000 !important;
+    }
+    
+    /* Strip interactive action buttons or filters completely from invoice printouts */
+    .no-print, 
+    .btn, 
+    form,
+    #sidebar,
+    .topbar {
+        display: none !important;
+    }
+}
+
+/* Target every single <label> element globally */
+label {
+    display: block;                  /* Forces the label onto its own line above the input */
+    font-size: 0.88rem;              /* Clean, highly readable size */
+    font-weight: 600;                /* Semi-bold text to make headers distinct */
+    color: #1e293b;                  /* A dark, sharp slate color (high-contrast) */
+    margin-bottom: 0.4rem;           /* Generous spacing between the label text and its input field */
+    text-transform: none;            /* Ensures natural casing (e.g., "Product Name") */
+}
+/* Target all standard input boxes, dropdown selects, and larger textareas */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+select,
+textarea {
+    width: 100%;                     /* Makes sure inputs expand to fit their layout column */
+    padding: 0.65rem 1rem;           /* Balanced internal vertical and horizontal padding */
+    font-size: 0.95rem;              /* Comfortable typing and reading font size */
+    color: #0f172a;                  /* Deep dark ink color for user inputs */
+    background-color: #ffffff;       /* Solid crisp white background canvas */
+    border: 2px solid #cbd5e1;       /* Clean gray border outlines */
+    border-radius: 8px;              /* Smooth, slightly rounded premium edges */
+    transition: all 0.2s ease-in-out;/* Smooth animation transition when clicking or hovering */
+    outline: none;                   /* Removes the browser's default harsh blue ring */
+}
+/* Subtle border color change when a user hovers their mouse over an input field */
+input[type="text"]:hover,
+input[type="password"]:hover,
+select:hover,
+textarea:hover {
+    border-color: #94a3b8;           /* Slightly darker slate gray outline */
+}
+
+/* Clear focus ring when a user clicks inside a field to type */
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #060b29;           /* Changes the border line to your crisp brand navy */
+    background-color: #ffffff;       /* Keeps the input surface perfectly white */
+    box-shadow: 0 0 0 4px rgba(6, 11, 41, 0.15); /* Adds a soft brand shadow ring around the box */
 }
