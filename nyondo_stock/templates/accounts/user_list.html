@@ -4,7 +4,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">
-        <i class="fa-solid fa-user-gear me-2 text-warning"></i> Staff Accounts
+        <i class="fa-solid fa-user-gear me-2"></i> Staff Accounts
     </h4>
     <a href="{% url 'register_user' %}" class="btn btn-primary">
         <i class="fa-solid fa-user-plus me-2"></i> Add Staff
@@ -13,49 +13,87 @@
 
 <div class="card">
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Full Name</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for profile in profiles %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ profile.user.get_full_name }}</td>
-                    <td>{{ profile.user.username }}</td>
-                    <td>
-                        <span class="badge
-                            {% if profile.role == 'admin' %}bg-danger
-                            {% elif profile.role == 'store_manager' %}bg-primary
-                            {% else %}bg-secondary{% endif %}">
-                            {{ profile.get_role_display }}
-                        </span>
-                    </td>
-                    <td>{{ profile.phone }}</td>
-                    <td>
-                        {% if profile.user.is_active %}
-                        <span class="badge bg-success">Active</span>
-                        {% else %}
-                        <span class="badge bg-secondary">Inactive</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
-                        No staff accounts yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Full Name</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in profiles %}
+                    <tr>
+                        <td class="text-muted">{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-semibold">
+                                {{ profile.user.get_full_name|default:profile.user.username }}
+                            </div>
+                            <small class="text-muted">
+                                {{ profile.user.email|default:"No email" }}
+                            </small>
+                        </td>
+                        <td>
+                            <code>{{ profile.user.username }}</code>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if profile.role == 'admin' %}bg-danger
+                                {% elif profile.role == 'store_manager' %}bg-primary
+                                {% else %}bg-secondary{% endif %}">
+                                {{ profile.get_role_display }}
+                            </span>
+                        </td>
+                        <td>{{ profile.phone }}</td>
+                        <td>
+                            {% if profile.user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <!-- Edit — all staff -->
+                                <a href="{% url 'user_edit' profile.pk %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Edit">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+
+                                <!-- Delete — cannot delete own account -->
+                                {% if profile.user != request.user %}
+                                <a href="{% url 'user_delete' profile.pk %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                                {% else %}
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        disabled
+                                        title="Cannot delete your own account">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="fa-solid fa-users fa-2x mb-2 d-block"></i>
+                            No staff accounts registered yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

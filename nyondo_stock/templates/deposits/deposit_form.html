@@ -2,26 +2,25 @@
 {% block title %}Record Deposit — NyondoStock{% endblock %}
 
 {% block content %}
-<a href="{% url 'deposit_report' %}">back
-    <i  ></i>
-</a>
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            
             <h4 class="fw-bold mb-0">
-                <i class="fa-solid fa-money-bill-wave me-2"
-                   style="color:var(--navy);"></i>
+                <i class="fa-solid fa-money-bill-wave me-2"></i>
                 Record Deposit
             </h4>
-        
+            <a href="{% url 'customer_detail' customer.pk %}"
+               class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
         </div>
 
         <!-- Customer info -->
-        <div class="box mb-3">
-            <div class="box-body d-flex align-items-center gap-3">
+        <div class="card mb-3">
+            <div class="card-body d-flex align-items-center gap-3">
                 <div style="width:44px; height:44px; border-radius:10px;
-                            background:var(--navy); color:var(--cream);
+                            background:var(--navy, #060B29);
+                            color:#FEF3C7;
                             display:flex; align-items:center;
                             justify-content:center; font-size:1.1rem;">
                     <i class="fa-solid fa-user"></i>
@@ -35,44 +34,67 @@
             </div>
         </div>
 
-        <div class="box">
-            <div class="box-head">
+        <div class="card">
+            <div class="card-header">
                 <i class="fa-solid fa-circle-info me-2"></i>
                 Only deposit-eligible products shown
             </div>
-            <div class="box-body">
+            <div class="card-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 mb-3">
+                        {% for error in form.non_field_errors %}
+                        <div>
+                            <i class="fa-solid fa-circle-exclamation me-1"></i>
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                     <div class="mb-3">
                         <label class="form-label">
                             Product <span class="text-danger">*</span>
                         </label>
-                        {{ form.product }}
+                        <select name="product"
+                                class="form-select {% if form.product.errors %}is-invalid{% endif %}">
+                            <option value="">— Select product —</option>
+                            {% for p in form.fields.product.queryset %}
+                            <option value="{{ p.pk }}"
+                                {% if form.product.value|stringformat:'s' == p.pk|stringformat:'s' %}
+                                selected{% endif %}>
+                                {{ p.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
                         {% if form.product.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.product.errors.0 }}
-                        </div>
+                        <div class="invalid-feedback">{{ form.product.errors.0 }}</div>
                         {% endif %}
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">
-                            Target Quantity
-                            <span class="text-danger">*</span>
+                            Target Quantity <span class="text-danger">*</span>
                             <small class="text-muted ms-1">
                                 How many units does the customer want?
                             </small>
                         </label>
-                        {{ form.target_quantity }}
+                        <input type="number"
+                               name="target_quantity"
+                               value="{{ form.target_quantity.value|default:'' }}"
+                               min="1"
+                               placeholder="e.g. 50"
+                               class="form-control {% if form.target_quantity.errors %}is-invalid{% endif %}">
                         {% if form.target_quantity.errors %}
-                        <div class="text-danger small mt-1">
+                        <div class="invalid-feedback">
                             {{ form.target_quantity.errors.0 }}
                         </div>
                         {% endif %}
                         <div class="form-text">
-                            Target amount will be calculated automatically
-                            based on product retail price × quantity.
+                            Target amount = product retail price × quantity.
+                            Calculated automatically.
                         </div>
                     </div>
 
@@ -81,9 +103,14 @@
                             Amount Paid Today (UGX)
                             <span class="text-danger">*</span>
                         </label>
-                        {{ form.amount_paid }}
+                        <input type="number"
+                               name="amount_paid"
+                               value="{{ form.amount_paid.value|default:'' }}"
+                               min="1"
+                               placeholder="UGX"
+                               class="form-control {% if form.amount_paid.errors %}is-invalid{% endif %}">
                         {% if form.amount_paid.errors %}
-                        <div class="text-danger small mt-1">
+                        <div class="invalid-feedback">
                             {{ form.amount_paid.errors.0 }}
                         </div>
                         {% endif %}
@@ -95,16 +122,15 @@
 
                     <div class="mb-4">
                         <label class="form-label">Notes</label>
-                        {{ form.notes }}
+                        <textarea name="notes"
+                                  rows="2"
+                                  class="form-control {% if form.notes.errors %}is-invalid{% endif %}">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
                     </div>
 
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger py-2">
-                        {{ form.non_field_errors.0 }}
-                    </div>
-                    {% endif %}
-
-                    <button type="submit" class="btn-main w-100">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="fa-solid fa-receipt me-2"></i>
                         Record & Generate Receipt
                     </button>

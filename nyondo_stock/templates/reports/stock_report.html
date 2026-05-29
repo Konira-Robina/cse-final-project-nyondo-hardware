@@ -7,11 +7,11 @@
     <h4 class="fw-bold mb-0">
         <i class="fa-solid fa-boxes-stacked me-2 text-warning"></i> Stock Report
     </h4>
-    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="margin-left: 250px;">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="margin-left: 250px; background-color: #FEF3c7;">
         <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
     </a>
     </div>
-    <button onclick="window.print()" class="btn btn-outline-secondary">
+    <button onclick="window.print()" class="btn btn-outline-secondary" style=" background-color: #FEF3c7;">
         <i class="fa-solid fa-print me-1"></i> Print
     </button>
 </div>
@@ -55,7 +55,7 @@
                     <i class="fa-solid fa-filter me-1"></i> Apply
                 </button>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2" style=" background-color: #FEF3c7;">
                 <a href="{% url 'stock_report' %}"
                    class="btn btn-outline-secondary w-100">
                     <i class="fa-solid fa-rotate me-1"></i> Reset
@@ -123,7 +123,7 @@
         <div class="card text-center">
             <div class="card-body py-4">
                 <div class="text-muted small mb-1">Stock Retail Value</div>
-                <div class="fw-bold fs-4 text-success">
+                <div class="fw-bold fs-4 ">
                     UGX {{ total_retail_value|floatformat:0 }}
                 </div>
                 <small class="text-muted">What we can sell for</small>
@@ -134,7 +134,7 @@
         <div class="card text-center">
             <div class="card-body py-4">
                 <div class="text-muted small mb-1">Potential Profit</div>
-                <div class="fw-bold fs-4 text-warning">
+                <div class="fw-bold fs-4">
                     UGX {{ potential_profit|floatformat:0 }}
                 </div>
                 <small class="text-muted">If all stock is sold at retail</small>
@@ -149,7 +149,7 @@
         <i class="fa-solid fa-tags me-2"></i> Stock by Category
     </div>
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0" >
             <thead>
                 <tr>
                     <th>Category</th>
@@ -205,7 +205,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td>
                             <a href="{% url 'product_detail' p.pk %}"
-                               class="text-decoration-none fw-semibold">
+                               class="text-decoration-none fw-semibold" style="color:rgb(11, 11, 16);">
                                 {{ p.name }}
                             </a>
                         </td>

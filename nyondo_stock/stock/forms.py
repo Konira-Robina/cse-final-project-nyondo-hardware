@@ -10,8 +10,14 @@ class CategoryForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g. Cement, Iron Bars'
+                'placeholder': 'e.g. Cement, Iron Bars',
             })
+        }
+        error_messages = {
+            'name': {
+                'required': 'Category name is required.',
+                'unique': 'This category already exists.',
+            }
         }
 
 
@@ -32,21 +38,51 @@ class ProductForm(forms.ModelForm):
             }),
             'unit': forms.Select(attrs={'class': 'form-select'}),
             'unit_cost': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': 'UGX'
+                'class': 'form-control', 'placeholder': 'UGX', 'min': 0
             }),
             'wholesale_price': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': 'UGX'
+                'class': 'form-control', 'placeholder': 'UGX', 'min': 0
             }),
             'retailer_price': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': 'UGX'
+                'class': 'form-control', 'placeholder': 'UGX', 'min': 0
             }),
             'retail_price': forms.NumberInput(attrs={
-                'class': 'form-control', 'placeholder': 'UGX'
+                'class': 'form-control', 'placeholder': 'UGX', 'min': 0
             }),
-            'quantity_in_stock': forms.NumberInput(attrs={'class': 'form-control'}),
-            'low_stock_threshold': forms.NumberInput(attrs={'class': 'form-control'}),
-            'is_deposit_eligible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'quantity_in_stock': forms.NumberInput(attrs={
+                'class': 'form-control', 'min': 0
+            }),
+            'low_stock_threshold': forms.NumberInput(attrs={
+                'class': 'form-control', 'min': 1
+            }),
+            'is_deposit_eligible': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
         }
+        error_messages = {
+            'name': {'required': 'Product name is required.'},
+            'category': {'required': 'Please select a category.'},
+            'unit': {'required': 'Please select a unit.'},
+            'unit_cost': {
+                'required': 'Unit cost is required.',
+                'invalid': 'Enter a valid number.',
+            },
+            'wholesale_price': {
+                'required': 'Wholesale price is required.',
+            },
+            'retailer_price': {
+                'required': 'Retailer price is required.',
+            },
+            'retail_price': {
+                'required': 'Retail price is required.',
+            },
+        }
+
+    def clean_unit_cost(self):
+        cost = self.cleaned_data.get('unit_cost')
+        if cost is not None and cost <= 0:
+            raise forms.ValidationError("Unit cost must be greater than zero.")
+        return cost
 
     def clean(self):
         cleaned_data = super().clean()

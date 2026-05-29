@@ -31,11 +31,15 @@ def login_view(request):
 
     return render(request, 'accounts/login.html', {'form': form})
 
-
 def logout_view(request):
-    logout(request)
-    messages.info(request, "You have been logged out.")
-    return redirect('login')
+    if request.method == 'POST':
+        logout(request)
+        messages.info(request, "You have been logged out successfully.")
+        return redirect('index')
+    return redirect('logout_confirm')
+@login_required
+def logout_confirm(request):
+    return render(request, 'accounts/logout_confirm.html')
 
 
 @login_required
@@ -91,6 +95,8 @@ def user_list_view(request):
     profiles = UserProfile.objects.select_related('user').all()
     return render(request, 'accounts/user_list.html', {'profiles': profiles})
 
+from .forms import LoginForm, UserRegistrationForm, UserEditForm
+
 @login_required
 def user_edit(request, pk):
     if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
@@ -98,25 +104,21 @@ def user_edit(request, pk):
         return redirect('dashboard')
 
     profile = get_object_or_404(UserProfile, pk=pk)
-    # Pre-populate role and phone from profile
-    initial = {'role': profile.role, 'phone': profile.phone}
-    form = UserRegistrationForm(request.POST or None,
-                                instance=profile.user,
-                                initial=initial)
+    form = UserEditForm(request.POST or None, instance=profile.user)
+
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            profile.role = form.cleaned_data['role']
-            profile.phone = form.cleaned_data['phone']
-            profile.save()
-            messages.success(request, "Staff account updated.")
+            messages.success(
+                request,
+                f"{profile.user.get_full_name()} updated successfully."
+            )
             return redirect('user_list')
 
-    return render(request, 'accounts/register.html', {
+    return render(request, 'accounts/user_edit.html', {
         'form': form,
-        'title': f'Edit — {profile.user.get_full_name()}',
+        'profile': profile,
     })
-
 
 @login_required
 def user_delete(request, pk):

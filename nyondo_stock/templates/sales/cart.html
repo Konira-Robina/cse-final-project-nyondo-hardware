@@ -3,13 +3,13 @@
 
 {% block content %}
 <div style="display: inline-flex;">
-<h4 class="mb-4 fw-bold">
-    <i class="fa-solid fa-cart-shopping me-2 text-warning"></i> New Sale
-</h4>
-<a href="{% url 'sales_list' %}" class="btn btn-outline-secondary" style="margin-left: 700px;">
+    <h4 class="mb-4 fw-bold">
+        <i class="fa-solid fa-cart-shopping me-2 text-warning"></i> New Sale
+    </h4>
+    <a href="{% url 'sales_list' %}" class="btn btn-outline-secondary" style="margin-left: 700px;">
         <i class="fa-solid fa-arrow-left me-2"></i>Sales History
     </a>
-    </div>
+</div>
 
 <div class="row g-3">
     <!-- Left: Customer + Add Item -->
@@ -21,40 +21,91 @@
                 <i class="fa-solid fa-user me-2"></i> Customer Details
             </div>
             <div class="card-body">
-                <form method="post">
+                <!-- Customer Details form -->
+                <form method="post" novalidate>
                     {% csrf_token %}
                     <input type="hidden" name="update_customer" value="1">
+
+                    {% if customer_form.non_field_errors %}
+                    <div class="alert alert-danger py-2 mb-3">
+                        {% for error in customer_form.non_field_errors %}
+                        <div>
+                            <i class="fa-solid fa-circle-exclamation me-1"></i>
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <div class="mb-2">
                         <label class="form-label">Customer Name</label>
-                        {{ customer_form.customer_name }}
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Phone</label>
-                        {{ customer_form.customer_phone }}
-                        {% if customer_form.customer_phone.errors %}
-                        <div class="text-danger small">{{ customer_form.customer_phone.errors.0 }}</div>
+                        <input type="text" name="customer_name"
+                            value="{{ customer_form.customer_name.value|default:'' }}"
+                            class="form-control {% if customer_form.customer_name.errors %}is-invalid{% endif %}"
+                            placeholder="Customer name (optional)">
+                        {% if customer_form.customer_name.errors %}
+                        <div class="invalid-feedback">
+                            {{ customer_form.customer_name.errors.0 }}
+                        </div>
                         {% endif %}
                     </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Phone</label>
+                        <input type="text" name="customer_phone"
+                            value="{{ customer_form.customer_phone.value|default:'' }}"
+                            class="form-control {% if customer_form.customer_phone.errors %}is-invalid{% endif %}"
+                            placeholder="0772123456 (optional)">
+                        {% if customer_form.customer_phone.errors %}
+                        <div class="invalid-feedback">
+                            {{ customer_form.customer_phone.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <div class="mb-2">
                         <label class="form-label">Customer Type</label>
-                        {{ customer_form.customer_type }}
+                        <select name="customer_type"
+                            class="form-select {% if customer_form.customer_type.errors %}is-invalid{% endif %}">
+                            {% for val, label in customer_form.fields.customer_type.choices %}
+                            <option value="{{ val }}" {% if customer_form.customer_type.value == val %}selected{% endif%}>
+                                {{ label }}
+                            </option>
+                           {% endfor %}
+                        </select>
+                        {% if customer_form.customer_type.errors %}
+                        <div class="invalid-feedback">
+                            {{ customer_form.customer_type.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
+
                     <div class="mb-2">
                         <div class="form-check">
-                            {{ customer_form.delivery_requested }}
-                            <label class="form-check-label">Delivery requested</label>
+                            <input type="checkbox" name="delivery_requested" id="delivery_requested"
+                                class="form-check-input" {% if customer_form.delivery_requested.value %}checked{% endif
+                                %}>
+                            <label class="form-check-label" for="delivery_requested">
+                                Delivery requested
+                            </label>
                         </div>
                     </div>
+
                     <div class="mb-3">
                         <div class="form-check">
-                            {{ customer_form.within_10km }}
-                            <label class="form-check-label">Within 10km</label>
+                            <input type="checkbox" name="within_10km" id="within_10km" class="form-check-input" {% if
+                                customer_form.within_10km.value %}checked{% endif %}>
+                            <label class="form-check-label" for="within_10km">
+                                Within 10km
+                            </label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" style="color: black; background-color: #FEF3C7;">
+
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
                         <i class="fa-solid fa-floppy-disk me-1"></i> Save Details
                     </button>
                 </form>
+
             </div>
         </div>
 
@@ -64,22 +115,46 @@
                 <i class="fa-solid fa-plus me-2"></i> Add Item
             </div>
             <div class="card-body">
-                <form method="post" action="{% url 'add_to_cart' %}">
+                <!-- Add to cart form -->
+                <form method="post" action="{% url 'add_to_cart' %}" novalidate>
                     {% csrf_token %}
+
+                    {% if add_form.non_field_errors %}
+                    <div class="alert alert-danger py-2 mb-3">
+                        {% for error in add_form.non_field_errors %}
+                        <div>
+                            <i class="fa-solid fa-circle-exclamation me-1"></i>
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <div class="mb-2">
                         <label class="form-label">Product</label>
-                        {{ add_form.product }}
+                        <select name="product"
+                            class="form-select {% if add_form.product.errors %}is-invalid{% endif %}">
+                            <option value="">— Select product —</option>
+                            {% for p in add_form.fields.product.queryset %}
+                            <option value="{{ p.pk }}" {% if add_form.product.value|stringformat:'s' == p.pk|stringformat:'s' %} selected {% endif %}>
+                                {{ p.name }} ({{ p.quantity_in_stock }} in stock)
+                            </option>
+                            {% endfor %}
+                        </select>
                         {% if add_form.product.errors %}
-                        <div class="text-danger small">{{ add_form.product.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ add_form.product.errors.0 }}</div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Quantity</label>
-                        {{ add_form.quantity }}
+                        <input type="number" name="quantity" value="{{ add_form.quantity.value|default:'' }}" min="1"
+                            class="form-control {% if add_form.quantity.errors %}is-invalid{% endif %}">
                         {% if add_form.quantity.errors %}
-                        <div class="text-danger small">{{ add_form.quantity.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ add_form.quantity.errors.0 }}</div>
                         {% endif %}
                     </div>
+
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fa-solid fa-cart-plus me-2"></i> Add to Cart
                     </button>
@@ -121,12 +196,14 @@
                                     <small class="text-muted d-block">{{ item.product.get_unit_display }}</small>
                                 </td>
                                 <td>
-                                    <form method="post" action="{% url 'update_cart_item' item.pk %}" class="d-flex gap-1">
+                                    <form method="post" action="{% url 'update_cart_item' item.pk %}"
+                                        class="d-flex gap-1">
                                         {% csrf_token %}
-                                        <input type="number" name="quantity" value="{{ item.quantity }}"
-                                               min="1" max="{{ item.product.quantity_in_stock }}"
-                                               class="form-control form-control-sm" style="width:70px;">
-                                        <button class="btn btn-sm btn-outline-secondary">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                                            max="{{ item.product.quantity_in_stock }}"
+                                            class="form-control form-control-sm" style="width:70px;">
+                                        <button class="btn btn-sm "
+                                            style="background-color: #FEF3C7;border: 1px solid black;">
                                             <i class="fa-solid fa-rotate"></i>
                                         </button>
                                     </form>
@@ -157,17 +234,17 @@
                         <span>Transport</span>
                         <span>
                             {% if cart.transport_status == 'free' %}
-                                <span class="text-success">Free</span>
+                            <span class="text-success">Free</span>
                             {% elif cart.transport_status == 'charged' %}
-                                UGX 30,000
+                            UGX 30,000
                             {% else %}
-                                -
+                            -
                             {% endif %}
                         </span>
                     </div>
                     <div class="d-flex justify-content-between fw-bold fs-5 border-top pt-2 mt-2">
                         <span>Grand Total</span>
-                        <span class="text-warning">UGX {{ cart.grand_total|floatformat:0 }}</span>
+                        <span class="text-dark">UGX {{ cart.grand_total|floatformat:0 }}</span>
                     </div>
                 </div>
 

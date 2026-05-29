@@ -2,8 +2,11 @@
 {% block title %}Dashboard — NyondoStock{% endblock %}
 
 {% block content %}
-<h4 class="mb-4 fw-bold">
-    <i class="fa-solid fa-gauge me-2 text-warning"></i> Dashboard
+<!-- Custom Dashboard Styles (Enforcing the Strict 3-Color Rule) -->
+
+
+<h4 class="mb-4 fw-bold dashboard-title">
+    <i class="fa-solid fa-gauge me-2"></i> Dashboard
 </h4>
 
 <!-- Stat Cards -->
@@ -12,145 +15,111 @@
     <!-- Total Products -->
     <div class="col-sm-6 col-xl-3">
         <a href="{% url 'product_list' %}" class="text-decoration-none">
-
             <div class="modern-stat-card">
-
-                <div class="glow glow-blue"></div>
-
                 <div class="stat-top">
                     <div class="stat-icon">
                         <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
-                </div>
-
-                <div class="stat-content">
-                    <h2>{{ total_products }}</h2>
                     <p>Total Products</p>
                 </div>
-
+                <h2 class="stat-counter-value">{{ total_products }}</h2>
             </div>
-
         </a>
     </div>
 
-    <!-- Low Stock -->
+    
     <div class="col-sm-6 col-xl-3">
         <a href="{% url 'product_list' %}?status=low" class="text-decoration-none">
-
-            <div class="modern-stat-card">
-
-                <div class="glow glow-red"></div>
-
+            <div class="modern-stat-card low-stock-alert">
                 <div class="stat-top">
-                    <div class="stat-icon danger">
+                    <div class="stat-icon" >
                         <i class="fa-solid fa-triangle-exclamation" style="color: red;"></i>
                     </div>
-                </div>
-
-                <div class="stat-content">
-                    <h2>{{ low_stock }}</h2>
                     <p>Low Stock Items</p>
                 </div>
-
+                <h2 class="stat-counter-value">{{ low_stock }}</h2>
             </div>
-
         </a>
     </div>
 
     <!-- Sales -->
     <div class="col-sm-6 col-xl-3">
         <a href="{% url 'sales_list' %}" class="text-decoration-none">
-
             <div class="modern-stat-card">
-
-                <div class="glow glow-purple"></div>
-
                 <div class="stat-top">
                     <div class="stat-icon">
                         <i class="fa-solid fa-receipt"></i>
                     </div>
-                </div>
-
-                <div class="stat-content">
-                    <h2>{{ todays_sales }}</h2>
                     <p>Today's Sales</p>
                 </div>
-
+                <h2 class="stat-counter-value">{{ todays_sales }}</h2>
             </div>
-
         </a>
     </div>
 
     <!-- Revenue -->
     <div class="col-sm-6 col-xl-3">
         <a href="{% url 'sales_report' %}" class="text-decoration-none">
-
             <div class="modern-stat-card">
-
-                <div class="glow glow-green"></div>
-
                 <div class="stat-top">
-                    <div class="stat-icon success">
+                    <div class="stat-icon">
                         <i class="fa-solid fa-coins"></i>
                     </div>
-                </div>
-
-                <div class="stat-content">
-                    <h2 class="revenue-text">
-                        UGX {{ todays_revenue|floatformat:0 }}
-                    </h2>
-
                     <p>Today's Revenue</p>
                 </div>
-
+                <h2 class="stat-counter-value" style="font-size: 1.8rem; padding-top: 4px;">
+                    UGX {{ todays_revenue|floatformat:0 }}
+                </h2>
             </div>
-
         </a>
     </div>
 
 </div>
 
-<!-- Quick Actions -->
-<div class="row g-3">
+<!-- Quick Actions & System Information Blocks -->
+<div class="row g-4">
+    <!-- Quick Actions Container -->
     <div class="col-md-6">
-        <div class="card h-100">
+        <div class="card h-100 custom-dashboard-card">
             <div class="card-header">
-                <i class="fa-solid fa-bolt me-2 text-warning"></i> Quick Actions
+                <i class="fa-solid fa-bolt me-2"></i> Quick Actions
             </div>
             <div class="card-body d-flex flex-column gap-2">
-                <a href="{% url 'cart' %}" class="btn btn-primary">
+                <a href="{% url 'cart' %}" class="btn btn-copper-primary py-2">
                     <i class="fa-solid fa-cart-plus me-2"></i> New Sale
                 </a>
-                <a href="{% url 'delivery_create' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'delivery_create' %}" class="btn btn-copper-outline py-2">
                     <i class="fa-solid fa-dolly me-2"></i> Record Delivery
                 </a>
-                <a href="{% url 'customer_register' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'customer_register' %}" class="btn btn-copper-outline py-2">
                     <i class="fa-solid fa-user-plus me-2"></i> Register Deposit Customer
                 </a>
                 {% if request.user.profile.role == 'admin' %}
-                <a href="{% url 'register_user' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'register_user' %}" class="btn btn-copper-outline py-2">
                     <i class="fa-solid fa-user-gear me-2"></i> Add Staff Account
                 </a>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- System Info Container -->
     <div class="col-md-6">
-        <div class="card h-100">
+        <div class="card h-100 custom-dashboard-card">
             <div class="card-header">
-                <i class="fa-solid fa-circle-info me-2 text-warning"></i> System Info
+                <i class="fa-solid fa-circle-info me-2"></i> System Info
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between px-0">
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush m-2">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-2">
                         <span>Logged in as</span>
                         <strong>{{ request.user.get_full_name }}</strong>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between px-0">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-2">
                         <span>Role</span>
                         <strong>{{ request.user.profile.get_role_display }}</strong>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between px-0">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-2">
                         <span>Pending deposits</span>
                         <strong>{{ pending_deposits }}</strong>
                     </li>

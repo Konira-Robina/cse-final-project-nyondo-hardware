@@ -4,7 +4,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">
-        <i class="fa-solid fa-dolly me-2 text-warning"></i> Record New Delivery
+        <i class="fa-solid fa-dolly me-2"></i> Record New Delivery
     </h4>
     <a href="{% url 'delivery_list' %}" class="btn btn-outline-secondary">
         <i class="fa-solid fa-arrow-left me-1"></i> Back
@@ -20,33 +20,89 @@
             <div class="card-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 mb-3">
+                        {% for error in form.non_field_errors %}
+                        <div>
+                            <i class="fa-solid fa-circle-exclamation me-1"></i>
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <div class="mb-3">
-                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                        {{ form.supplier }}
+                        <label class="form-label">
+                            Supplier <span class="text-danger">*</span>
+                        </label>
+                        <select name="supplier"
+                                class="form-select {% if form.supplier.errors %}is-invalid{% endif %}">
+                            <option value="">— Select supplier —</option>
+                            {% for s in form.fields.supplier.queryset %}
+                            <option value="{{ s.pk }}"
+                                {% if form.supplier.value|stringformat:'s' == s.pk|stringformat:'s' %}
+                                selected{% endif %}>
+                                {{ s.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
                         {% if form.supplier.errors %}
-                        <div class="text-danger small mt-1">{{ form.supplier.errors.0 }}</div>
+                        <div class="invalid-feedback">{{ form.supplier.errors.0 }}</div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Delivery Date <span class="text-danger">*</span></label>
-                        {{ form.delivery_date }}
+                        <label class="form-label">
+                            Delivery Date <span class="text-danger">*</span>
+                        </label>
+                        <input type="date"
+                               name="delivery_date"
+                               value="{{ form.delivery_date.value|default:'' }}"
+                               class="form-control {% if form.delivery_date.errors %}is-invalid{% endif %}">
                         {% if form.delivery_date.errors %}
-                        <div class="text-danger small mt-1">{{ form.delivery_date.errors.0 }}</div>
+                        <div class="invalid-feedback">
+                            {{ form.delivery_date.errors.0 }}
+                        </div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Payment Type <span class="text-danger">*</span></label>
-                        {{ form.payment_type }}
+                        <label class="form-label">
+                            Payment Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="payment_type"
+                                class="form-select {% if form.payment_type.errors %}is-invalid{% endif %}">
+                            <option value="">— Select payment type —</option>
+                            {% for val, label in form.fields.payment_type.choices %}
+                            {% if val %}
+                            <option value="{{ val }}"
+                                {% if form.payment_type.value == val %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                         {% if form.payment_type.errors %}
-                        <div class="text-danger small mt-1">{{ form.payment_type.errors.0 }}</div>
+                        <div class="invalid-feedback">
+                            {{ form.payment_type.errors.0 }}
+                        </div>
                         {% endif %}
                     </div>
+
                     <div class="mb-4">
                         <label class="form-label">Notes</label>
-                        {{ form.notes }}
+                        <textarea name="notes"
+                                  rows="2"
+                                  class="form-control {% if form.notes.errors %}is-invalid{% endif %}">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
                     </div>
+
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fa-solid fa-arrow-right me-2"></i> Continue — Add Items
+                        <i class="fa-solid fa-arrow-right me-2"></i>
+                        Continue — Add Items
                     </button>
                 </form>
             </div>

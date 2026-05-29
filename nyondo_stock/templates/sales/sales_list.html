@@ -3,9 +3,14 @@
 {% block title %}Sales History — NyondoStock{% endblock %}
 
 {% block content %}
+<div style="display: inline-flex;">
 <h4 class="fw-bold mb-4">
     <i class="fa-solid fa-receipt me-2 text-warning"></i> Sales History
 </h4>
+<a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="margin-left: 600px;background-color: #FEF3C7;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+</div>
 
 <!-- Search & Filter -->
 <div class="card mb-4">

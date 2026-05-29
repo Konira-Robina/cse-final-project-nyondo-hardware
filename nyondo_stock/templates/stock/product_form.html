@@ -4,10 +4,10 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">
-        <i class="fa-solid fa-box me-2 text-warning"></i> {{ title }}
+        <i class="fa-solid fa-box me-2"></i> {{ title }}
     </h4>
     <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
-        <i class="fa-solid fa-arrow-left me-2"></i> Back
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
     </a>
 </div>
 
@@ -16,95 +16,170 @@
         <form method="post" novalidate>
             {% csrf_token %}
 
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 mb-3">
+                {% for error in form.non_field_errors %}
+                <div>
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <div class="row g-3">
+
                 <!-- Basic Info -->
                 <div class="col-12">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3"
+                    <h6 class="text-muted text-uppercase fw-semibold mb-0"
                         style="font-size:0.75rem; letter-spacing:0.06em;">
                         Basic Information
                     </h6>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Category <span class="text-danger">*</span></label>
-                    {{ form.category }}
+                    <label class="form-label">
+                        Category <span class="text-danger">*</span>
+                    </label>
+                    <select name="category"
+                            class="form-select {% if form.category.errors %}is-invalid{% endif %}">
+                        <option value="">— Select category —</option>
+                        {% for cat in form.fields.category.queryset %}
+                        <option value="{{ cat.pk }}"
+                            {% if form.category.value|stringformat:'s' == cat.pk|stringformat:'s' %}
+                            selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
                     {% if form.category.errors %}
-                    <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.category.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                    {{ form.name }}
+                    <label class="form-label">
+                        Product Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           name="name"
+                           value="{{ form.name.value|default:'' }}"
+                           class="form-control {% if form.name.errors %}is-invalid{% endif %}">
                     {% if form.name.errors %}
-                    <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Unit <span class="text-danger">*</span></label>
-                    {{ form.unit }}
+                    <label class="form-label">
+                        Unit <span class="text-danger">*</span>
+                    </label>
+                    <select name="unit"
+                            class="form-select {% if form.unit.errors %}is-invalid{% endif %}">
+                        <option value="">— Select unit —</option>
+                        {% for val, label in form.fields.unit.choices %}
+                        {% if val %}
+                        <option value="{{ val }}"
+                            {% if form.unit.value == val %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
                     {% if form.unit.errors %}
-                    <div class="text-danger small mt-1">{{ form.unit.errors.0 }}</div>
+                    <div class="invalid-feedback">{{ form.unit.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Description</label>
-                    {{ form.description }}
+                    <textarea name="description"
+                              class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                              rows="2">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Pricing -->
                 <div class="col-12 mt-2">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3"
+                    <h6 class="text-muted text-uppercase fw-semibold mb-0"
                         style="font-size:0.75rem; letter-spacing:0.06em;">
                         Pricing (UGX)
                     </h6>
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
-                    {{ form.unit_cost }}
-                    {% if form.unit_cost.errors %}
-                    <div class="text-danger small mt-1">{{ form.unit_cost.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Wholesale Price <span class="text-danger">*</span></label>
-                    {{ form.wholesale_price }}
-                    {% if form.wholesale_price.errors %}
-                    <div class="text-danger small mt-1">{{ form.wholesale_price.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Retailer Price <span class="text-danger">*</span></label>
-                    {{ form.retailer_price }}
-                    {% if form.retailer_price.errors %}
-                    <div class="text-danger small mt-1">{{ form.retailer_price.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Retail Price <span class="text-danger">*</span></label>
-                    {{ form.retail_price }}
-                    {% if form.retail_price.errors %}
-                    <div class="text-danger small mt-1">{{ form.retail_price.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Pricing hint -->
                 <div class="col-12">
                     <div class="alert alert-info py-2 small mb-0">
                         <i class="fa-solid fa-circle-info me-1"></i>
-                        Price rule: <strong>Unit Cost &lt; Wholesale &lt; Retailer &lt; Retail</strong>
+                        Price rule:
+                        <strong>Unit Cost &lt; Wholesale &lt; Retailer &lt; Retail</strong>
                     </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Unit Cost <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           name="unit_cost"
+                           value="{{ form.unit_cost.value|default:'' }}"
+                           min="0"
+                           class="form-control {% if form.unit_cost.errors %}is-invalid{% endif %}"
+                           placeholder="UGX">
+                    {% if form.unit_cost.errors %}
+                    <div class="invalid-feedback">{{ form.unit_cost.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Wholesale Price <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           name="wholesale_price"
+                           value="{{ form.wholesale_price.value|default:'' }}"
+                           min="0"
+                           class="form-control {% if form.wholesale_price.errors %}is-invalid{% endif %}"
+                           placeholder="UGX">
+                    {% if form.wholesale_price.errors %}
+                    <div class="invalid-feedback">{{ form.wholesale_price.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Retailer Price <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           name="retailer_price"
+                           value="{{ form.retailer_price.value|default:'' }}"
+                           min="0"
+                           class="form-control {% if form.retailer_price.errors %}is-invalid{% endif %}"
+                           placeholder="UGX">
+                    {% if form.retailer_price.errors %}
+                    <div class="invalid-feedback">{{ form.retailer_price.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">
+                        Retail Price <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           name="retail_price"
+                           value="{{ form.retail_price.value|default:'' }}"
+                           min="0"
+                           class="form-control {% if form.retail_price.errors %}is-invalid{% endif %}"
+                           placeholder="UGX">
+                    {% if form.retail_price.errors %}
+                    <div class="invalid-feedback">{{ form.retail_price.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Stock -->
                 <div class="col-12 mt-2">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3"
+                    <h6 class="text-muted text-uppercase fw-semibold mb-0"
                         style="font-size:0.75rem; letter-spacing:0.06em;">
                         Stock Settings
                     </h6>
@@ -112,26 +187,44 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Opening Stock Quantity</label>
-                    {{ form.quantity_in_stock }}
+                    <input type="number"
+                           name="quantity_in_stock"
+                           value="{{ form.quantity_in_stock.value|default:'0' }}"
+                           min="0"
+                           class="form-control {% if form.quantity_in_stock.errors %}is-invalid{% endif %}">
                     {% if form.quantity_in_stock.errors %}
-                    <div class="text-danger small mt-1">{{ form.quantity_in_stock.errors.0 }}</div>
+                    <div class="invalid-feedback">
+                        {{ form.quantity_in_stock.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Low Stock Alert Threshold</label>
-                    {{ form.low_stock_threshold }}
+                    <input type="number"
+                           name="low_stock_threshold"
+                           value="{{ form.low_stock_threshold.value|default:'10' }}"
+                           min="1"
+                           class="form-control {% if form.low_stock_threshold.errors %}is-invalid{% endif %}">
                     {% if form.low_stock_threshold.errors %}
-                    <div class="text-danger small mt-1">{{ form.low_stock_threshold.errors.0 }}</div>
+                    <div class="invalid-feedback">
+                        {{ form.low_stock_threshold.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
 
                 <div class="col-md-4 d-flex align-items-end pb-2">
                     <div class="form-check">
-                        {{ form.is_deposit_eligible }}
-                        <label class="form-check-label">
+                        <input type="checkbox"
+                               name="is_deposit_eligible"
+                               id="is_deposit_eligible"
+                               class="form-check-input"
+                               {% if form.is_deposit_eligible.value %}checked{% endif %}>
+                        <label class="form-check-label" for="is_deposit_eligible">
                             Eligible for Deposit Scheme
-                            <small class="text-muted d-block">Cement, iron sheets, bars only</small>
+                            <small class="text-muted d-block">
+                                Cement, iron sheets, bars only
+                            </small>
                         </label>
                     </div>
                 </div>
@@ -141,10 +234,12 @@
                     <button type="submit" class="btn btn-primary px-4">
                         <i class="fa-solid fa-floppy-disk me-2"></i> Save Product
                     </button>
-                    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary ms-2">
+                    <a href="{% url 'product_list' %}"
+                       class="btn btn-outline-secondary ms-2">
                         Cancel
                     </a>
                 </div>
+
             </div>
         </form>
     </div>
