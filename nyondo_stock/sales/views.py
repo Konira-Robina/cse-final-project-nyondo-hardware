@@ -182,7 +182,7 @@ def sales_list(request):
 
     # Pagination
     from django.core.paginator import Paginator
-    paginator = Paginator(sales, 15)
+    paginator = Paginator(sales, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

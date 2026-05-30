@@ -17,18 +17,18 @@
 
 {% if request.user.is_authenticated %}
 
-    <!-- ══ Hidden checkbox — pure CSS sidebar toggle ══ -->
+    <!-- hidden toggle -->
     <input type="checkbox" id="nav-tog" class="nav-tog" hidden>
 
     <div class="wrapper">
 
-        <!-- ══════════════ SIDEBAR ══════════════ -->
+        <!--SIDEBAR  -->
         <nav id="sidebar">
 
-            <div class="sidebar-header">
-                <i class="fa-solid fa-warehouse me-2"></i>
-                <span>NYONDO HARDWARE LTD</span>
-            </div>
+            <div class="auth-logo" style="font-size: 1.4rem;">
+        <i class="fa-solid fa-warehouse"></i> NYONDO
+    </div>
+    <p class="auth-subtitle" style="font-size: 0.8rem;">General Hardware Ltd</p>
 
             <ul class="sidebar-menu">
 

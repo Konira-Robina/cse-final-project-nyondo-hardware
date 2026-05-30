@@ -81,25 +81,30 @@
                     </div>
 
                     <div class="mb-2">
-                        <div class="form-check">
-                            <input type="checkbox" name="delivery_requested" id="delivery_requested"
-                                class="form-check-input" {% if customer_form.delivery_requested.value %}checked{% endif
-                                %}>
-                            <label class="form-check-label" for="delivery_requested">
-                                Delivery requested
-                            </label>
-                        </div>
-                    </div>
+                    <div class="form-check">
+                   <input type="checkbox"
+                     name="delivery_requested"
+                     id="delivery_requested"
+                     class="form-check-input"
+                    {% if cart.delivery_requested %}checked{% endif %}>
+                    <label class="form-check-label" for="delivery_requested">
+                     Delivery requested
+                    </label>
+                 </div>
+               </div>
 
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input type="checkbox" name="within_10km" id="within_10km" class="form-check-input" {% if
-                                customer_form.within_10km.value %}checked{% endif %}>
-                            <label class="form-check-label" for="within_10km">
-                                Within 10km
-                            </label>
-                        </div>
-                    </div>
+             <div class="mb-3">
+                 <div class="form-check">
+                <input type="checkbox"
+               name="within_10km"
+               id="within_10km"
+               class="form-check-input"
+               {% if cart.within_10km %}checked{% endif %}>
+            <label class="form-check-label" for="within_10km">
+            Within 10km
+           </label>
+        </div>
+    </div>
 
                     <button type="submit" class="btn btn-outline-primary btn-sm w-100">
                         <i class="fa-solid fa-floppy-disk me-1"></i> Save Details

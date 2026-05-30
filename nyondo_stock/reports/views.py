@@ -257,7 +257,8 @@ def credit_report(request):
     return render(request, 'reports/credit_report.html', context)
 
 
-# ── Deposit Scheme Report ──────────────────────────────────────
+#Deposit Scheme Report 
+
 
 @role_required(['admin', 'sales_attendant'])
 def deposit_report(request):
@@ -267,9 +268,7 @@ def deposit_report(request):
 
     date_from = parse_date(request.GET.get('date_from'), default_from)
     date_to = parse_date(request.GET.get('date_to'), default_to)
-    status = request.GET.get('status', '')
 
-    # All customers
     customers = DepositCustomer.objects.filter(is_active=True)
 
     # Deposits in period
@@ -278,17 +277,26 @@ def deposit_report(request):
         payment_date__date__lte=date_to,
     ).select_related('customer', 'product')
 
-    # Pending pickups — customers who deposited enough
+    # Pending pickups — only customers who have
+    # paid the FULL target amount for a specific deposit
     pending_pickups = []
     for customer in customers:
         for deposit in customer.deposits.filter(pickups__isnull=True):
-            total = customer.total_deposited()
-            if total >= deposit.product.retail_price:
+            # Sum all payments for this specific product
+            total_paid_for_product = sum(
+                d.amount_paid for d in
+                customer.deposits.filter(product=deposit.product)
+            )
+            # Only include if fully paid
+            if total_paid_for_product >= deposit.target_amount:
                 pending_pickups.append({
                     'customer': customer,
                     'deposit': deposit,
-                    'total_deposited': total,
+                    'total_deposited': total_paid_for_product,
                     'product': deposit.product,
+                    'target_quantity': deposit.target_quantity,
+                    'target_amount': deposit.target_amount,
+                    'progress': deposit.progress_percent,
                 })
 
     # Completed pickups in period
@@ -319,7 +327,6 @@ def deposit_report(request):
     context = {
         'date_from': date_from,
         'date_to': date_to,
-        'status': status,
         'deposits': deposits,
         'pending_pickups': pending_pickups,
         'pickups': pickups,

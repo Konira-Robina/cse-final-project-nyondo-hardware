@@ -10,6 +10,7 @@ from suppliers.models import SupplierCreditAccount
 from deposits.models import DepositRecord
 from django.db import models
 from django.utils import timezone
+from django.db.models import Sum
 
 def index_view(request):
     if request.user.is_authenticated:
@@ -44,25 +45,29 @@ def logout_confirm(request):
 
 @login_required
 def dashboard_view(request):
-    # Summary stats for dashboard cards
+    today = timezone.now().date()
+
     total_products = Product.objects.count()
     low_stock = Product.objects.filter(
         quantity_in_stock__lte=models.F('low_stock_threshold')
     ).count()
-    todays_sales = Sale.objects.filter(
-        sale_date__date=timezone.now().date()
-    ).count()
-    pending_credits = SupplierCreditAccount.objects.filter(
-        is_cleared=False
-    ).count()
-    pending_deposits = DepositRecord.objects.filter(
-        pickups__isnull=True
-    ).count()
+    todays_sales = Sale.objects.filter(sale_date__date=today).count()
+    
+    # Calculate today's revenue
+    todays_revenue = Sale.objects.filter(
+        sale_date__date=today
+    ).aggregate(
+        total=models.Sum('grand_total')  
+    )['total'] or 0
+
+    pending_credits = SupplierCreditAccount.objects.filter(is_cleared=False).count()
+    pending_deposits = DepositRecord.objects.filter(pickups__isnull=True).count()
 
     context = {
         'total_products': total_products,
         'low_stock': low_stock,
         'todays_sales': todays_sales,
+        'todays_revenue': todays_revenue, 
         'pending_credits': pending_credits,
         'pending_deposits': pending_deposits,
     }
